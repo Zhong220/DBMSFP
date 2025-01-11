@@ -164,6 +164,10 @@ class Database:
             return result[0]  # 返回交易的第一條結果，即該交易的詳細資料
         return None  # 如果找不到交易資料，返回 None
 
+    def get_all_transactions(self):
+        query = "SELECT * FROM Transaction"
+        return self.execute_query(query)
+
     # ------------------ Transaction_Debtor 表相關操作 ------------------
     def create_transaction_debtor(self, transaction_id, debtor_id, amount):
         """新增交易債務關係"""
