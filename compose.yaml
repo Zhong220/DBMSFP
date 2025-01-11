@@ -1,0 +1,86 @@
+services:
+  client:
+    container_name: client
+    build:
+      context: ./src/client
+      dockerfile: dockerfile
+    ports:
+      - 3000:3000
+    env_file:
+      - ./src/client/.env
+    depends_on:
+      - server
+
+  server:
+    container_name: server
+    build:
+      context: ./src/server
+      dockerfile: dockerfile
+    ports:
+      - 5000:5000
+    env_file:
+      - ./src/server/.env
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/mydatabase
+    depends_on:
+      - db
+      - redis
+
+  redis:
+    container_name: redis
+    image: redis:alpine
+    ports:
+      - 7000:6379
+    volumes:
+      - redis_data:/data
+    restart: always
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  # PostgreSQL Database
+  db:
+    container_name: db
+    image: postgres:14-alpine
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydatabase
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  # pgAdmin Service
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:8
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    depends_on:
+      - db
+
+volumes:
+  pg_data:
+  redis_data:
+
+
+networks:
+  DBMSFP_network:
+    driver: bridge
