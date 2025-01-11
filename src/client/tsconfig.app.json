@@ -6,10 +6,7 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
-<<<<<<< HEAD
-=======
     "types": ["node"], // include Node.js types
->>>>>>> new_friend_list
 
     /* Bundler mode */
     "moduleResolution": "bundler",

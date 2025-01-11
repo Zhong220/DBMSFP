@@ -2,11 +2,7 @@ import React, { useState } from 'react';
 
 interface AddFriendModalProps {
   show: boolean;
-<<<<<<< HEAD
-  onAdd: (username: string, nickname: string) => void;
-=======
   onAdd: (friendId: number, nickname: string) => void;
->>>>>>> new_friend_list
   onClose: () => void;
 }
 
@@ -15,24 +11,12 @@ const AddFriendModal: React.FC<AddFriendModalProps> = ({
   onAdd,
   onClose,
 }) => {
-<<<<<<< HEAD
-  const [username, setUsername] = useState('');
-=======
   const [friendId, setFriendId] = useState(''); // handle as string for input
->>>>>>> new_friend_list
   const [nickname, setNickname] = useState('');
 
   if (!show) return null;
 
   const handleAdd = () => {
-<<<<<<< HEAD
-    if (username.trim() && nickname.trim()) {
-      onAdd(username.trim(), nickname.trim());
-      setUsername('');
-      setNickname('');
-      onClose();
-    }
-=======
     if (!friendId.trim() || isNaN(Number(friendId))) {
       alert('請輸入有效的好友 ID (數字) '); // 確保 valid numeric input
       return;
@@ -46,7 +30,6 @@ const AddFriendModal: React.FC<AddFriendModalProps> = ({
       setFriendId('');
       setNickname('');
       onClose();
->>>>>>> new_friend_list
   };
 
   return (
@@ -63,15 +46,9 @@ const AddFriendModal: React.FC<AddFriendModalProps> = ({
               <input
                 type="text"
                 className="form-control"
-<<<<<<< HEAD
-                placeholder="輸入使用者名稱"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-=======
                 placeholder="輸入好友 ID (數字)"
                 value={friendId}
                 onChange={(e) => setFriendId(e.target.value)}
->>>>>>> new_friend_list
               />
             </div>
             <div className="mb-3">

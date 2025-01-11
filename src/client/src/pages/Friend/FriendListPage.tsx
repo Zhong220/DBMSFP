@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-import React, { useState } from 'react';
-import FriendList from './FriendList';
-import AddFriendModal from './AddFriend';
-import DeleteConfirmation from './DeleteConfirmation';
-
-interface Friend {
-  username: string;
-=======
 import React, { useState, useEffect } from 'react';
 import FriendList from './FriendList';
 import AddFriendModal from './AddFriend';
@@ -16,27 +7,12 @@ import axios from 'axios';
 interface Friend {
   list_id: number;
   friend_id: number;
->>>>>>> new_friend_list
   nickname: string;
 }
 
 const FriendListPage: React.FC = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
-<<<<<<< HEAD
-  const [friendToDelete, setFriendToDelete] = useState<Friend | null>(null); // Track friend to delete
-
-  const addFriend = (username: string, nickname: string) => {
-    setFriends((prev) => [...prev, { username, nickname }]);
-  };
-
-  const deleteFriend = () => {
-    if (friendToDelete) {
-      setFriends((prev) =>
-        prev.filter((friend) => friend.username !== friendToDelete.username)
-      );
-      setFriendToDelete(null); // Close confirmation modal
-=======
   const [friendToDelete, setFriendToDelete] = useState<Friend | null>(null); // Track 刪除的好友
   const [userId] = useState<number>(1); // temp hardcode user ID for testing
 
@@ -97,7 +73,6 @@ const FriendListPage: React.FC = () => {
           setFriendToDelete(null);
         })
         .catch((error) => console.error('Error deleting friend:', error));
->>>>>>> new_friend_list
     }
   };
 
@@ -118,13 +93,8 @@ const FriendListPage: React.FC = () => {
       ) : (
         <FriendList
           friends={friends}
-<<<<<<< HEAD
-          onDelete={(username) => {
-            const friend = friends.find((f) => f.username === username);
-=======
           onDelete={(listId: number) => {
             const friend = friends.find((f) => f.list_id === listId);
->>>>>>> new_friend_list
             if (friend) setFriendToDelete(friend); // Show confirmation modal
           }}
         />
@@ -132,11 +102,7 @@ const FriendListPage: React.FC = () => {
 
       <AddFriendModal
         show={showAddModal}
-<<<<<<< HEAD
-        onAdd={addFriend}
-=======
         onAdd={(friendId, nickname) => addFriend(Number(friendId), nickname)}
->>>>>>> new_friend_list
         onClose={() => setShowAddModal(false)}
       />
 
