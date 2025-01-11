@@ -1,10 +1,18 @@
 from flask import Flask
 from database import Database  # 引入 database.py
+from dotenv import load_dotenv
+from routes.friendlist import friendlist_bp
+from flask_cors import CORS
 
 app = Flask(__name__)
 
+CORS(app)  # allow cross-origin requests
+
 # 創建 Database 實例
 db = Database()
+
+# register Blueprint
+app.register_blueprint(friendlist_bp)
 
 @app.route("/")
 def home():
