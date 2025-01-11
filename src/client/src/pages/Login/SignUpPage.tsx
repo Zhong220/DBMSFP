@@ -4,49 +4,56 @@ import { useNavigate } from "react-router-dom";
 const SignUpPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
-  const [domain, setDomain] = useState("");
+  const [domain, setDomain] = useState("gmail.com"); // 默认域名
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string>(""); /* 存取錯誤訊息 */
+  const [error, setError] = useState<string>(""); // 错误信息
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const [currentImage, setCurrentImage] = useState("/assets/hide.png");
 
-  /* 驗證有效輸入 */
+  const navigate = useNavigate();
+
+  // 验证输入
   const validateInputs = (): string => {
     if (!username) {
-      return "Enter an username";
+      return "Please enter a username";
+    }
+    if (!email) {
+      return "Please enter an email";
     }
     if (!password) {
-      return "Enter a password";
+      return "Please enter a password";
     }
     if (password.length < 8) {
-      return "Use 8 characters or more for your password";
+      return "Password must be at least 8 characters long";
     }
     return "";
   };
 
+  // 提交表单
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     const validationError = validateInputs();
     if (validationError) {
-      setError(validationError); /* 設置錯誤訊息 */
+      setError(validationError);
       return;
     }
-    setError(""); /* 清除錯誤訊息 */
+    setError(""); // 清除错误信息
 
-    // 從 localStorage 取出已存在的用戶列表
+    // 组合完整 Email 地址
+    const fullEmail = `${email}@${domain}`;
+
+    // 从 localStorage 获取用户列表
     const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
-    const newUser = { username, password }; // 新註冊的用戶
+    const newUser = { username, email: fullEmail, password };
     const updatedUsers = [...existingUsers, newUser];
 
-    // 將更新後的用戶列表存回 localStorage
+    // 保存用户到 localStorage
     localStorage.setItem("users", JSON.stringify(updatedUsers));
 
-    // 提示註冊成功並跳轉到登入頁
     alert("Registration successful! You can now log in.");
-    navigate("/login");
+    navigate("/login"); // 跳转到登录页面
   };
-
-  /* 獲取導航函數 */
-  const navigate = useNavigate();
 
   /* 改變密碼顯示狀態 */
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -78,6 +85,7 @@ const SignUpPage: React.FC = () => {
         style={{ maxWidth: "400px" }}
         onSubmit={handleSubmit}
       >
+        {/* 用户名 */}
         <div className="mb-3">
           <label htmlFor="username" className="form-label">
             Username
@@ -91,23 +99,22 @@ const SignUpPage: React.FC = () => {
             onChange={(e) => setUsername(e.target.value)}
           />
         </div>
+
+        {/* Email 输入 */}
         <div className="mb-3">
           <label htmlFor="email" className="form-label">
             Email
           </label>
           <div className="input-group">
-            {/* 輸入框 */}
             <input
               type="text"
               className="form-control"
               id="email"
-              placeholder=" "
+              placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-            {/* @ */}
             <span className="input-group-text">@</span>
-            {/* 下拉式選單 */}
             <select
               className="form-select"
               value={domain}
@@ -121,13 +128,15 @@ const SignUpPage: React.FC = () => {
             </select>
           </div>
         </div>
+
+        {/* 密码输入 */}
         <div className="mb-3">
           <label htmlFor="password" className="form-label">
             Password
           </label>
           <div className="input-group">
             <input
-              type={passwordVisible ? "text" : "password"} // 動態設置輸入框類型
+              type={passwordVisible ? "text" : "password"} // 动态切换输入框类型
               className="form-control"
               id="password"
               placeholder="Enter your password"
@@ -137,10 +146,11 @@ const SignUpPage: React.FC = () => {
             <button
               type="button"
               className="btn btn-outline-secondary"
-              onClick={handleShowPassword} // 點擊切換顯示狀態
+              onClick={togglePasswordVisibility} // 切换密码显示状态
             >
               <img
                 src={currentImage}
+                alt="Toggle Visibility"
                 style={{
                   width: "24px",
                   height: "24px",
@@ -149,25 +159,24 @@ const SignUpPage: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {/* 错误提示 */}
         {error && (
-          <div
-            className="btn alert alert-danger"
-            style={{
-              width: "400px",
-              /* overflowWrap='break-word', /*長字串自動換行*/
-            }}
-          >
+          <div className="alert alert-danger" style={{ maxWidth: "400px" }}>
             {error}
           </div>
-        )}{" "}
-        {/* 顯示錯誤訊息 */}
+        )}
+
+        {/* 提交按钮 */}
         <button type="submit" className="btn btn-primary w-100 mb-3">
-          GET STARTED
+          Get Started
         </button>
+
+        {/* 跳转到登录页按钮 */}
         <button
           type="button"
           className="btn btn-light w-100"
-          onClick={() => navigate("/Login")}
+          onClick={() => navigate("/login")}
         >
           Login
         </button>
@@ -177,3 +186,4 @@ const SignUpPage: React.FC = () => {
 };
 
 export default SignUpPage;
+

@@ -1,44 +1,131 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from "react";
 
 const AccountingPage: React.FC = () => {
-  const [payer, setPayer] = useState('');
-  const [amount, setAmount] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]); // 預設為今天日期
-  const [splitters, setSplitters] = useState([{ name: '', amount: '' }]);
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('飲食'); // 預設分類
-  const [note, setNote] = useState(''); // 備註欄位
+  const [payer, setPayer] = useState("1"); // 預設登入用戶是 Alice（user_id: 1）
+  const [amount, setAmount] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]); // 預設當天日期
+  const [splitters, setSplitters] = useState<string[]>([]); // 債務人 ID
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("1");
+  const [note, setNote] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [friends, setFriends] = useState<{ id: string; name: string }[]>([]); // 好友列表
 
-  const handleAddSplitter = () => {
-    setSplitters([...splitters, { name: '', amount: '' }]);
-  };
+  // 模擬當前登入用戶
+  const loggedInUser = { id: "1", name: "Alice" };
 
-  const handleSplitterChange = (index: number, field: string, value: string) => {
-    const updatedSplitters = splitters.map((splitter, i) =>
-      i === index ? { ...splitter, [field]: value } : splitter
-    );
-    setSplitters(updatedSplitters);
-  };
-
-  const handleSubmit = () => {
-    const transactionData = {
-      payer,
-      amount,
-      date,
-      splitters,
-      description,
-      category,
-      note,
+  // 獲取好友列表
+  useEffect(() => {
+    const fetchFriends = async () => {
+      try {
+        const response = await fetch(`http://127.0.0.1:5005/api/friends/${loggedInUser.id}`);
+        if (!response.ok) {
+          throw new Error("無法獲取好友列表");
+        }
+        const result = await response.json();
+        const friendsList = result.data.map((friend: { friend_id: number; nickname: string }) => ({
+          id: friend.friend_id.toString(),
+          name: friend.nickname,
+        }));
+        // 將自己添加到好友列表
+        const updatedFriendsList = [{ id: loggedInUser.id, name: loggedInUser.name }, ...friendsList];
+        setFriends(updatedFriendsList);
+      } catch (error) {
+        console.error("Error fetching friends:", error);
+        alert("獲取好友列表失敗，請稍後再試！");
+      }
     };
-    console.log('Transaction Data:', transactionData);
-    alert('Transaction Submitted!');
+    fetchFriends();
+  }, []);
+
+  const handleSplitterChange = (userId: string) => {
+    setSplitters((prev) =>
+      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
+    );
+  };
+
+  const handleSubmit = async () => {
+    try {
+      if (!description.trim()) {
+        alert("請輸入交易名稱！");
+        return;
+      }
+      if (!amount || parseFloat(amount) <= 0) {
+        alert("請輸入有效金額！");
+        return;
+      }
+      if (!splitters.length) {
+        alert("請選擇至少一個分帳者！");
+        return;
+      }
+
+      setLoading(true);
+
+      const payload = {
+        item: description,
+        amount: parseFloat(amount),
+        description: note,
+        category_id: parseInt(category, 10),
+        payer_id: parseInt(payer, 10),
+        transaction_date: date,
+        splitters: splitters.map((debtor_id) => parseInt(debtor_id, 10)),
+      };
+
+      console.log("Submitting payload:", payload); // 調試用
+      const response = await fetch("http://127.0.0.1:5005/api/split", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "提交失敗，請稍後再試！");
+      }
+
+      const result = await response.json();
+      console.log("API Response:", result); // 調試用
+      if (!result || !result.data || !result.data.transaction_id) {
+        alert("提交成功，但未返回交易ID！");
+        return;
+      }
+      alert(`交易已提交成功！交易ID: ${result.data.transaction_id}`);
+
+      // 重置表單
+      setPayer(loggedInUser.id);
+      setAmount("");
+      setDate(new Date().toISOString().split("T")[0]);
+      setSplitters([]);
+      setDescription("");
+      setCategory("1");
+      setNote("");
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert("未知錯誤！");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="container mt-5">
       <h2 className="text-center text-success mb-4">新增交易</h2>
-
-      {/* 輸入金額 */}
+      <div className="mb-3">
+        <label className="form-label">付款人</label>
+        <select
+          className="form-select"
+          value={payer}
+          onChange={(e) => setPayer(e.target.value)}
+          disabled
+        >
+          <option value={loggedInUser.id}>{loggedInUser.name}</option>
+        </select>
+      </div>
       <div className="mb-3">
         <label className="form-label">金額</label>
         <input
@@ -49,20 +136,16 @@ const AccountingPage: React.FC = () => {
           onChange={(e) => setAmount(e.target.value)}
         />
       </div>
-
-      {/* 輸入帳務名稱 */}
       <div className="mb-3">
-        <label className="form-label">帳務名稱</label>
+        <label className="form-label">交易名稱</label>
         <input
           type="text"
           className="form-control"
-          placeholder="輸入帳務名稱"
+          placeholder="輸入交易名稱"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
       </div>
-
-      {/* 選擇日期 */}
       <div className="mb-3">
         <label className="form-label">日期</label>
         <input
@@ -72,8 +155,6 @@ const AccountingPage: React.FC = () => {
           onChange={(e) => setDate(e.target.value)}
         />
       </div>
-
-      {/* 選擇分類 */}
       <div className="mb-3">
         <label className="form-label">分類</label>
         <select
@@ -81,60 +162,33 @@ const AccountingPage: React.FC = () => {
           value={category}
           onChange={(e) => setCategory(e.target.value)}
         >
-          <option value="飲食">飲食</option>
-          <option value="服飾">服飾</option>
-          <option value="交通">交通</option>
-          <option value="娛樂">娛樂</option>
-          <option value="其他">其他</option>
+          <option value="1">飲食</option>
+          <option value="2">娛樂</option>
+          <option value="3">交通</option>
         </select>
       </div>
-
-      {/* 輸入付款人 */}
-      <div className="mb-3">
-        <label className="form-label">付款人</label>
-        <input
-          type="text"
-          className="form-control"
-          placeholder="輸入付款人姓名"
-          value={payer}
-          onChange={(e) => setPayer(e.target.value)}
-        />
-      </div>
-
-      {/* 分帳者 */}
       <div className="mb-3">
         <label className="form-label">分帳者</label>
-        {splitters.map((splitter, index) => (
-          <div key={index} className="d-flex mb-2">
-            <input
-              type="text"
-              className="form-control me-2"
-              placeholder="姓名"
-              value={splitter.name}
-              onChange={(e) =>
-                handleSplitterChange(index, 'name', e.target.value)
-              }
-            />
-            <input
-              type="number"
-              className="form-control me-2"
-              placeholder="金額"
-              value={splitter.amount}
-              onChange={(e) =>
-                handleSplitterChange(index, 'amount', e.target.value)
-              }
-            />
-          </div>
-        ))}
-        <button
-          className="btn btn-outline-primary"
-          onClick={handleAddSplitter}
-        >
-          新增分帳者
-        </button>
+        {friends.length === 0 ? (
+          <p>無好友可分帳</p>
+        ) : (
+          friends.map((friend) => (
+            <div key={friend.id} className="form-check">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id={`splitter-${friend.id}`}
+                value={friend.id}
+                checked={splitters.includes(friend.id)}
+                onChange={(e) => handleSplitterChange(e.target.value)}
+              />
+              <label className="form-check-label" htmlFor={`splitter-${friend.id}`}>
+                {friend.name}
+              </label>
+            </div>
+          ))
+        )}
       </div>
-
-      {/* 備註欄位 */}
       <div className="mb-3">
         <label className="form-label">備註</label>
         <textarea
@@ -145,10 +199,12 @@ const AccountingPage: React.FC = () => {
           onChange={(e) => setNote(e.target.value)}
         ></textarea>
       </div>
-
-      {/* 確認按鈕 */}
-      <button className="btn btn-success w-100" onClick={handleSubmit}>
-        確認
+      <button
+        className="btn btn-success w-100"
+        onClick={handleSubmit}
+        disabled={loading}
+      >
+        {loading ? "提交中..." : "確認"}
       </button>
     </div>
   );
