@@ -17,7 +17,10 @@ services:
       context: ./src/server
       dockerfile: dockerfile
     ports:
-      - 5000:5000
+      - 5001:5000
+    volumes:
+      - ./src/server:/app  # 將本地的 server 資料夾掛載到容器內的 /app
+      - ./src/server/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     env_file:
       - ./src/server/.env
     environment:
@@ -32,7 +35,7 @@ services:
     container_name: redis
     image: redis:alpine
     ports:
-      - 7000:6379
+      - 7001:6379
     volumes:
       - redis_data:/data
     restart: always
@@ -56,6 +59,7 @@ services:
       POSTGRES_DB: mydatabase
     volumes:
       - pg_data:/var/lib/postgresql/data
+      - ./src/server/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 1m30s
@@ -79,7 +83,6 @@ services:
 volumes:
   pg_data:
   redis_data:
-
 
 networks:
   DBMSFP_network:
