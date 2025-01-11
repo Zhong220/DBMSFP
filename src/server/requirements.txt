@@ -1,3 +1,9 @@
 flask
 psycopg2-binary
 python-dotenv
+flask_cors
+flask
+sqlalchemy
+flask-sqlalchemy
+bcrypt
+PyJWT

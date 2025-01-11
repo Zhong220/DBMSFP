@@ -5,11 +5,9 @@ services:
       context: ./src/client
       dockerfile: dockerfile
     ports:
-      - 3000:3000
+      - 3001:3000
     env_file:
-      - ./src/client/.env
-    depends_on:
-      - server
+      - .env
 
   server:
     container_name: server
@@ -22,14 +20,12 @@ services:
       - ./src/server:/app  # 將本地的 server 資料夾掛載到容器內的 /app
       - ./src/server/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     env_file:
-      - ./src/server/.env
-    environment:
-      - FLASK_APP=app.py
-      - FLASK_ENV=development
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/mydatabase
+      - .env
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   redis:
     container_name: redis
@@ -49,14 +45,16 @@ services:
   # PostgreSQL Database
   db:
     container_name: db
-    image: postgres:14-alpine
+    build:
+      context: ./src/server/database
+      dockerfile: dockerfile
     restart: always
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: mydatabase
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - pg_data:/var/lib/postgresql/data
       - ./src/server/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
@@ -77,11 +75,15 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - pgadmin4-data:/var/lib/pgadmin
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 volumes:
   pg_data:
+  pgadmin4-data:
   redis_data:
 
 networks:

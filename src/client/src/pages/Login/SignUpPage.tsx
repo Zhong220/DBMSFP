@@ -51,6 +51,7 @@ const SignUpPage: React.FC = () => {
   /* 改變密碼顯示狀態 */
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [imageVisible, setImageVisible] = useState(false);
+  console.log(imageVisible); // 測試用
 
   /* 切換密碼顯示或隱藏 */
   const handleShowPassword = () => {
