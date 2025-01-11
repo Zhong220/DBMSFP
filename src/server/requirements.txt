@@ -4,3 +4,6 @@ flask-cors
 sqlalchemy
 flask-sqlalchemy
 redis
+=======
+python-dotenv
+
