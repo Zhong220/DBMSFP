@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState } from 'react';
 import FriendList from './FriendList';
 import AddFriendModal from './AddFriend';
@@ -5,12 +6,24 @@ import DeleteConfirmation from './DeleteConfirmation';
 
 interface Friend {
   username: string;
+=======
+import React, { useState, useEffect } from 'react';
+import FriendList from './FriendList';
+import AddFriendModal from './AddFriend';
+import DeleteConfirmation from './DeleteConfirmation';
+import axios from 'axios';
+
+interface Friend {
+  list_id: number;
+  friend_id: number;
+>>>>>>> new_friend_list
   nickname: string;
 }
 
 const FriendListPage: React.FC = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
+<<<<<<< HEAD
   const [friendToDelete, setFriendToDelete] = useState<Friend | null>(null); // Track friend to delete
 
   const addFriend = (username: string, nickname: string) => {
@@ -23,6 +36,68 @@ const FriendListPage: React.FC = () => {
         prev.filter((friend) => friend.username !== friendToDelete.username)
       );
       setFriendToDelete(null); // Close confirmation modal
+=======
+  const [friendToDelete, setFriendToDelete] = useState<Friend | null>(null); // Track 刪除的好友
+  const [userId] = useState<number>(1); // temp hardcode user ID for testing
+
+  //const userId = 1;
+
+  // fetch friends from backend
+  useEffect(() => {
+    console.log('Fetching friends for user:', userId); // Debug log
+    axios
+      .get(`http://localhost:5001/friends?user_id=${userId}`)
+      .then((response) => {
+        if (response.data) {
+          console.log('Friends fetched:', response.data); // debug msg
+          setFriends(response.data); // updt friends from backend
+        } else { console.error('No data received from backend :('); }
+      })
+      .catch((error) => console.error('Error fetching friends:', error));
+  }, [userId]);
+
+  // 新增好友
+  const addFriend = (friendId: number, nickname: string) => {
+
+    // 檢查是否已經加過好友
+    if(friends.some((friend) => friend.friend_id === friendId)){
+      alert("你們已經是朋友！");
+    return; // Stop
+    }
+
+    axios
+      .post('http://localhost:5001/friends', {
+        user_id: userId, // dynamic uID
+        friend_id: friendId,
+        nickname,
+      })
+      .then((response) => {
+        // safety check, ensure backend resp is valid before updating state
+        if(response.data && response.data.list_id){ 
+          setFriends((prev) => [
+            ...prev,
+            { list_id: response.data.list_id, friend_id: friendId, nickname },
+          ]);
+        }
+        setShowAddModal(false);
+      })
+      .catch((error) => console.error('Error adding friend:', error));
+  };
+
+ // delete a friend
+  const deleteFriend = () => {
+    console.log('Deleting friend:', friendToDelete); // Debug
+    if (friendToDelete) {
+      axios
+        .delete(`http://localhost:5001/friends/${friendToDelete.list_id}`)
+        .then(() => {
+          setFriends((prev) =>
+            prev.filter((friend) => friend.list_id !== friendToDelete.list_id)
+          );
+          setFriendToDelete(null);
+        })
+        .catch((error) => console.error('Error deleting friend:', error));
+>>>>>>> new_friend_list
     }
   };
 
@@ -43,8 +118,13 @@ const FriendListPage: React.FC = () => {
       ) : (
         <FriendList
           friends={friends}
+<<<<<<< HEAD
           onDelete={(username) => {
             const friend = friends.find((f) => f.username === username);
+=======
+          onDelete={(listId: number) => {
+            const friend = friends.find((f) => f.list_id === listId);
+>>>>>>> new_friend_list
             if (friend) setFriendToDelete(friend); // Show confirmation modal
           }}
         />
@@ -52,7 +132,11 @@ const FriendListPage: React.FC = () => {
 
       <AddFriendModal
         show={showAddModal}
+<<<<<<< HEAD
         onAdd={addFriend}
+=======
+        onAdd={(friendId, nickname) => addFriend(Number(friendId), nickname)}
+>>>>>>> new_friend_list
         onClose={() => setShowAddModal(false)}
       />
 

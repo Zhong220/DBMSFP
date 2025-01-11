@@ -13,7 +13,11 @@ const DeleteConfirmation: React.FC<DeleteConfirmationProps> = ({
   onConfirm,
   onCancel,
 }) => {
+<<<<<<< HEAD
   if (!show) return null; // Only render when `show` is true
+=======
+  if (!show) return null; // render only when `show` is true
+>>>>>>> new_friend_list
 
   return (
     <div className="modal show d-block" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>

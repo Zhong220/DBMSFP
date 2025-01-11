@@ -3,7 +3,11 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import WelcomePage from './pages/Login/WelcomePage';
 import LoginPage from './pages/Login/LoginPage';
 import SignUpPage from './pages/Login/SignUpPage';
+<<<<<<< HEAD
 import HomePage from './pages/Home/HomePage';
+=======
+import HomePage from './pages/HomePage';
+>>>>>>> new_friend_list
 import FriendListPage from './pages/Friend/FriendListPage';
 import AccountingPage from './pages/Accounting/AccountingPage';
 import SplitPage from './pages/Accounting/SplitPage';

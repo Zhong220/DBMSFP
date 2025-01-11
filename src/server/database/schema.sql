@@ -18,6 +18,10 @@ CREATE TABLE
         "user_ID" INTEGER NOT NULL REFERENCES "users" ("user_ID") ON DELETE CASCADE,
         "friend_ID" INTEGER NOT NULL REFERENCES "users" ("user_ID") ON DELETE CASCADE,
         "nickname" VARCHAR(100)
+        -- Constraint: Ensure no duplicate friendships between users
+        CONSTRAINT unique_user_friend UNIQUE (user_ID, friend_ID),
+        -- Constraint: Prevent users from adding themselves as a friend
+        CONSTRAINT no_self_friendship CHECK (user_ID <> friend_ID)
     );
 
 -- "category" 表：存儲交易類別資訊
