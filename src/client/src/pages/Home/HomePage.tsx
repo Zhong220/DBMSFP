@@ -9,9 +9,6 @@ const HomePage: React.FC = () => {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchField, setSearchField] = useState("name");
-  console.log(searchField); // 測試用，讓變數被使用
-  console.log(setSearchField); // 暫時讓它被使用
-
 
   const months = [
     "1月",

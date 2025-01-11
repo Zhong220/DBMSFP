@@ -23,7 +23,7 @@ const SignUpPage: React.FC = () => {
     return "";
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
     const validationError = validateInputs();
     if (validationError) {
@@ -32,17 +32,28 @@ const SignUpPage: React.FC = () => {
     }
     setError(""); /* 清除錯誤訊息 */
 
-    // 從 localStorage 取出已存在的用戶列表
-    const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
-    const newUser = { username, password }; // 新註冊的用戶
-    const updatedUsers = [...existingUsers, newUser];
-
-    // 將更新後的用戶列表存回 localStorage
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
-
-    // 提示註冊成功並跳轉到登入頁
-    alert("Registration successful! You can now log in.");
-    navigate("/login");
+    try {
+      const response = await fetch("http://127.0.0.1:5000/user/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      });
+  
+      const data = await response.json();
+      if (response.ok) {
+        alert("Registration successful! You can now log in.");
+        navigate("/login");
+      } else {
+        setError(data.error || "Something went wrong.");
+      }
+    } catch (error) {
+      setError("An error occurred while registering. Please try again.");
+    }
   };
 
   /* 獲取導航函數 */
@@ -51,7 +62,6 @@ const SignUpPage: React.FC = () => {
   /* 改變密碼顯示狀態 */
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [imageVisible, setImageVisible] = useState(false);
-  console.log(imageVisible); // 測試用
 
   /* 切換密碼顯示或隱藏 */
   const handleShowPassword = () => {

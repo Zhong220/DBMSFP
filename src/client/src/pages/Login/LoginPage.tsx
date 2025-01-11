@@ -72,8 +72,6 @@ const LoginPage: React.FC = () => {
   /* 改變密碼圖示顯示狀態 */
   const [passwordVisible, setPasswordVisible]=useState(false);
   const [imageVisible, setImageVisible]=useState(false);
-  console.log(mockUsers); // 測試用
-  console.log(imageVisible);
 
   /* 切換密碼顯示或隱藏 */
   const handleShowPassword = () => {
