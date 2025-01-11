@@ -27,7 +27,7 @@ CREATE TABLE Transaction (
     item VARCHAR(255) NOT NULL,
     amount DECIMAL(10, 2) NOT NULL CHECK (amount > 0),
     description TEXT,
-    transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    transaction_date NOT NULL
     category_ID INTEGER REFERENCES Category(category_ID) ON DELETE SET NULL,
     payer_ID INTEGER NOT NULL REFERENCES "User"(user_ID) ON DELETE CASCADE,
 	split_count INTEGER NOT NULL

@@ -129,15 +129,16 @@ class Database:
 
 
     # ------------------ Transaction 表相關操作 ------------------
-    def create_transaction(self, item, amount, description, category_id, payer_id, split_count):
+    def create_transaction(self, item, amount, description, transaction_date, category_id, payer_id, split_count):
         """新增交易"""
         query = """
-        INSERT INTO Transaction (item, amount, description, category_ID, payer_ID, split_count)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO Transaction (item, amount, description, transaction_date, category_ID, payer_ID, split_count)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
         RETURNING transaction_ID
         """
-        result = self.execute_query(query, (item, amount, description, category_id, payer_id, split_count))
+        result = self.execute_query(query, (item, amount, description, transaction_date, category_id, payer_id, split_count))
         return result[0]["transaction_id"] if result else None
+
 
     def delete_transaction(self, transaction_id):
         """刪除交易"""
