@@ -2,5 +2,10 @@ flask
 Flask-SQLAlchemy
 Flask-Bcrypt
 psycopg2-binary
+flask-cors
+sqlalchemy
+flask-sqlalchemy
+redis
+=======
 python-dotenv
 -e /src/server/routes/
