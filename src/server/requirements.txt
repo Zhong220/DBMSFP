@@ -1,3 +1,9 @@
 flask
 psycopg2-binary
+flask-cors
+sqlalchemy
+flask-sqlalchemy
+redis
+=======
 python-dotenv
+
