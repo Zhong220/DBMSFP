@@ -4,10 +4,10 @@ from flask_bcrypt import Bcrypt
 from auth import create_account
 
 # 建立 Blueprint
-user_routes = Blueprint('user', __name__)
+user_bp = Blueprint('user', __name__)
 
 # 註冊使用者
-@user_routes.route('/register', methods=['POST'])
+@user_bp.route('/register', methods=['POST'])
 
 def register():
     try:

@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask import Blueprint
 from database import Database
 from dotenv import load_dotenv
 from flask_cors import CORS
@@ -20,11 +21,9 @@ logger = logging.getLogger(__name__)
 def create_response(message="", data=None, error=None, status=200):
     return jsonify({"message": message, "data": data, "error": error}), status
 
-@app.route("/", methods=["GET"])
-def home():
-    return jsonify({"message": "Welcome to the Flask API"})
+transaction_bp = Blueprint("transaction_bp", __name__)
 
-@app.route("/api/transactions", methods=["GET"])
+@transaction_bp.route("/api/transactions", methods=["GET"])
 def get_transactions():
     """获取所有交易记录"""
     try:
@@ -38,7 +37,7 @@ def get_transactions():
     finally:
         db.close()
 
-@app.route("/api/split", methods=["POST"])
+@transaction_bp.route("/api/split", methods=["POST"])
 def split_transaction():
     """处理分账请求"""
     try:
@@ -105,7 +104,7 @@ def split_transaction():
     finally:
         db.close()
 
-@app.route("/api/users", methods=["GET"])
+@transaction_bp.route("/api/users", methods=["GET"])
 def get_users():
     """返回测试用的用户列表"""
     try:
@@ -120,7 +119,7 @@ def get_users():
         logger.exception(f"Error fetching users: {e}")
         return create_response(error="Failed to fetch users.", status=500)
 
-@app.route("/api/friends/<int:user_id>", methods=["GET"])
+@transaction_bp.route("/api/friends/<int:user_id>", methods=["GET"])
 def get_friends(user_id):
     """返回用户的好友列表"""
     try:

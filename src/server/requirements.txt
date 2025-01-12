@@ -6,6 +6,4 @@ flask-cors
 sqlalchemy
 flask-sqlalchemy
 redis
-=======
 python-dotenv
--e /src/server/routes/

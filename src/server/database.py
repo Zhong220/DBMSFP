@@ -4,8 +4,6 @@ from psycopg2 import OperationalError
 from psycopg2.extras import RealDictCursor
 import redis
 
-print("database: Connected to the database successfully!")
-
 class Database:
     def __init__(self):
         try:
@@ -18,20 +16,6 @@ class Database:
             self.connection = None
             
         self.redis_client = None  # 添加 Redis 連線變數
-=======
-import psycopg2
-from psycopg2.extras import RealDictCursor
-
-class Database:
-     def __init__(self):
-        try:
-            # 從環境變數獲取 DATABASE_URL
-            database_url = os.getenv("DATABASE_URL")
-            self.connection = psycopg2.connect(database_url)
-            print("init: Connected to the database successfully!")
-        except OperationalError as e:
-            print(f"init: Error connecting to database: {e}")
-            self.connection = None
 
     def connect(self):
         """建立資料庫連線"""
@@ -60,16 +44,7 @@ class Database:
                 print("Connected to database and Redis successfully", flush = True)
             except Exception as e:
                 print(f"Error connecting to Redis: {e}",  flush = True)
-=======
-                        dbname="mydatabase",       # 資料庫名稱
-                        user="postgres",          # 使用者名稱
-                        password="postgres",      # 使用者密碼
-                        host="db",                # 主機名稱（Docker 服務名稱）
-                        port="5432"               # 資料庫端口
-                        )
                 self.connection.autocommit = True
-            except Exception as e:
-                print(f"Error connecting to database: {e}")
 
     def execute_query(self, query, params=None):
         """執行 SQL 查詢"""
@@ -81,7 +56,6 @@ class Database:
                 return None  # 非查詢語句 (如 INSERT, UPDATE)
         except Exception as e:
             print(f"Error executing query: {e}")
-=======
             return None
 
     def close(self):
@@ -196,19 +170,6 @@ class Database:
         result = self.execute_query(query, (item, amount, description, transaction_date, category_id, payer_id, split_count))
         return result[0]["transaction_id"] if result else None
 
-
-=======
-    def create_transaction(self, item, amount, description, category_id, payer_id, split_count):
-        """新增交易"""
-        query = """
-        INSERT INTO Transaction (item, amount, description, transaction_date, category_ID, payer_ID, split_count)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
-        RETURNING transaction_ID
-        """
-        result = self.execute_query(query, (item, amount, description, transaction_date, category_id, payer_id, split_count))
-        return result[0]["transaction_id"] if result else None
-
-
     def delete_transaction(self, transaction_id):
         """刪除交易"""
         query = "DELETE FROM Transaction WHERE transaction_ID = %s"
@@ -229,8 +190,6 @@ class Database:
         query = "SELECT * FROM Transaction"
         return self.execute_query(query)
 
-    # ------------------ Transaction_Debtor 表相關操作 ------------------
-=======
 # ------------------ Transaction_Debtor 表相關操作 ------------------
 
     def create_transaction_debtor(self, transaction_id, debtor_id, amount):
@@ -268,9 +227,6 @@ class Database:
         """
         self.execute_query(query, (new_amount, transaction_id, debtor_id))
 
-
-    # ------------------ Split 表相關操作 ------------------
-=======
 # ------------------ Split 表相關操作 ------------------
     def create_split(self, transaction_id, debtor_id, payer_id, amount):
         """新增分帳資訊"""
@@ -346,4 +302,3 @@ class Database:
 
 
 db = Database()
-=======
