@@ -29,6 +29,38 @@ def update_leaderboard():
     return jsonify({"success": True, "message": "Leaderboard updated"})
 
 
+@leaderboard_bp.route("/score/<int:user_id>", methods=["GET"])
+def get_user_score(user_id):
+    """返回指定用戶的積分"""
+    db = Database()
+    db.connect()
+    
+    try:
+        query = """
+        SELECT name, credit_score
+        FROM "User"
+        WHERE user_ID = %s;
+        """
+        result = db.execute_query(query, (user_id,))
+        if result:
+            user_data = result[0]  # 假設只會有一筆資料
+            return jsonify({
+                "success": True,
+                "data": {
+                    "user_ID": user_id,
+                    "name": user_data["name"],
+                    "credit_score": user_data["credit_score"]
+                }
+            })
+        else:
+            return jsonify({"success": False, "message": "User not found"}), 404
+    except Exception as e:
+        print(f"Error fetching user score: {e}")
+        return jsonify({"success": False, "message": "Error fetching user score"}), 500
+    finally:
+        db.close()
+
+
 
 
 
