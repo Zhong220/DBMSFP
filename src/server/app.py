@@ -11,7 +11,7 @@ from database import Database  # 引入 database.py
 from routes.user_routes import user_bp
 from routes.friend_routes import friend_bp
 from routes.transaction_routes import transaction_bp
-from routes.leaderdboard_routes import leaderboard_bp  
+from routes.leaderboard_routes import leaderboard_bp  
 
 # 加載環境變數
 load_dotenv()
