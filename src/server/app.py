@@ -60,5 +60,8 @@ def home():
 
     return "Hello, Flask!"
 
+# 註冊 user_routes
+app.register_blueprint(user_routes,url_prefix='/user')
+
 if __name__ == "__main__":
     app.run(debug=True)
