@@ -166,6 +166,36 @@ const HomePage: React.FC = () => {
     setSplitLines(newSplitLines); // ★ 存到 state
     setIsSplitModalOpen(true); // 打開彈窗
   };
+  const saveSplitLinesToDB = async () => {
+    try {
+      // 後端預期: [ {transactionId, debtorId, payerId, amount}, ... ]
+      const payload = splitLines.map((line) => ({
+        transactionId: line.transactionId,
+        debtorId: line.debtorId,
+        payerId: line.payerId,
+        amount: line.amount,
+      }));
+
+      const resp = await fetch("http://localhost:5005/api/split/splits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (resp.ok) {
+        alert("分帳明細已成功寫入 DB！");
+        setIsSplitModalOpen(false);
+        setSplitLines([]);
+        setSelectedTransactions([]);
+      } else {
+        const err = await resp.json();
+        alert(`寫入失敗: ${err.error || "Unknown Error"}`);
+      }
+    } catch (error) {
+      console.error("Error saving split lines:", error);
+      alert("發生錯誤，請檢查 console");
+    }
+  };
 
   const saveSplitResults = async () => {
     console.log("Check splits before fetch:", splitResults);
@@ -359,6 +389,9 @@ const HomePage: React.FC = () => {
             </table>
 
             <button onClick={() => setIsSplitModalOpen(false)}>關閉</button>
+
+            {/* ★ 新增：把 splitLines 寫進 DB */}
+            <button onClick={saveSplitLinesToDB}>寫入 DB</button>
           </div>
         </div>
       )}
@@ -386,7 +419,7 @@ const HomePage: React.FC = () => {
                 </button>
               </li>
               <li>
-                <button onClick={() => navigate("/accounting")}>
+                <button onClick={() => navigate("/split")}>
                   分帳紀錄
                 </button>
               </li>

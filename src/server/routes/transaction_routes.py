@@ -1,3 +1,4 @@
+#transaction_routes.py
 from flask import Flask, request, jsonify
 from flask import Blueprint
 from database import Database
@@ -220,6 +221,7 @@ def split_transaction():
     finally:
         db.close()
 
+
 @transaction_bp.route("/split-bulk", methods=["POST"])
 def save_split_lines():
     """
@@ -231,7 +233,7 @@ def save_split_lines():
         ...
       ]
     }
-    逐筆 INSERT 到 transaction_debtor / Split
+    逐筆 INSERT 到 transaction_debtor + split
     """
     try:
         db.connect()
@@ -247,7 +249,7 @@ def save_split_lines():
             payer_id = line["payerId"]
             amt = float(line["amount"])
 
-            # (1) 寫入 transaction_debtor
+            # (1) transaction_debtor
             db.execute_query(
                 """
                 INSERT INTO transaction_debtor (transaction_ID, debtor_ID, amount)
@@ -255,10 +257,11 @@ def save_split_lines():
                 """,
                 (tx_id, debtor_id, amt)
             )
-            # (2) 寫入 Split
+
+            # (2) split (小寫 s，確保和 schema.sql 裡的表名一致)
             db.execute_query(
                 """
-                INSERT INTO "Split" (transaction_ID, debtor_ID, payer_ID, amount)
+                INSERT INTO split (transaction_ID, debtor_ID, payer_ID, amount)
                 VALUES (%s, %s, %s, %s)
                 """,
                 (tx_id, debtor_id, payer_id, amt)
@@ -267,7 +270,7 @@ def save_split_lines():
         return create_response(message="Split lines saved successfully!", status=201)
 
     except Exception as e:
-        logger.exception(f"Error saving split lines: {e}")
+        logging.exception(f"Error saving split lines: {e}")
         return create_response(error=f"Split lines save failed: {str(e)}", status=500)
     finally:
         db.close()

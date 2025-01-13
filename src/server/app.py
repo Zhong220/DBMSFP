@@ -11,6 +11,7 @@ from routes.friendlist import friendlist_bp
 from routes.transaction_routes import transaction_bp
 from routes.leaderboard_routes import leaderboard_bp  
 from routes.category_routes import category_bp
+from routes.split_route import split_bp
 
 # 加載環境變數
 load_dotenv()
@@ -26,6 +27,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhos
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # 註冊 Blueprint
+app.register_blueprint(split_bp, url_prefix='/api/split')
 app.register_blueprint(user_bp, url_prefix='/api/users')
 app.register_blueprint(friend_bp, url_prefix='/api/friends')
 app.register_blueprint(friendlist_bp, url_prefix='/api/friendlist')

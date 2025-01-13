@@ -20,7 +20,7 @@ const App: React.FC = () => {
         <Route path="/homepage" element={<HomePage />} />
         <Route path="/friendlist" element={<FriendListPage />} />
         <Route path="/accounting" element={<AccountingPage />} />
-		<Route path="/split" element={<SplitPage />} />
+		    <Route path="/split" element={<SplitPage />} />
         <Route path="/score" element={<ScorePage />} />
       </Routes>
     </BrowserRouter>
