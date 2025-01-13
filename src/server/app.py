@@ -29,7 +29,7 @@ db = Database()  # 初始化資料庫
 app.register_blueprint(user_bp, url_prefix='/api/users')
 app.register_blueprint(friend_bp, url_prefix='/api/friends')
 app.register_blueprint(friendlist_bp, url_prefix='/api/friendslist')
-app.register_blueprint(transaction_bp, url_prefix='/api/transaction')
+app.register_blueprint(transaction_bp, url_prefix='/api/transactions')
 app.register_blueprint(leaderboard_bp, url_prefix="/api/leaderboard")
 
 # 測試路由
