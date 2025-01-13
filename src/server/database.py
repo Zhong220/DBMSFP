@@ -112,7 +112,7 @@ class Database:
     def create_friend(self, user_id, friend_id, nickname):
         """新增好友關係"""
         query = """
-        INSERT INTO friend_List (user_ID, friend_ID, nickname)
+        INSERT INTO friend_list (user_ID, friend_ID, nickname)
         VALUES (%s, %s, %s)
         RETURNING list_ID
         """
@@ -123,13 +123,13 @@ class Database:
     #刪除好友
     def delete_friend(self, list_id):
         """刪除好友關係"""
-        query = "DELETE FROM friend_List WHERE list_ID = %s"
+        query = "DELETE FROM friend_list WHERE list_ID = %s"
         self.execute_query(query, (list_id,))
     #查詢好友列表
     def get_friends_by_user_id(self, user_id):
         """根據用戶 ID 查詢該用戶的所有好友資料"""
         query = """
-        SELECT * FROM friend_List WHERE user_ID = %s
+        SELECT * FROM friend_list WHERE user_ID = %s
         """
         result = self.execute_query(query, (user_id,))
         if result:
