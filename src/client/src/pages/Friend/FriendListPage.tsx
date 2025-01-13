@@ -22,7 +22,7 @@ const FriendListPage: React.FC = () => {
   useEffect(() => {
     console.log('Fetching friends for user:', userId); // Debug log
     axios
-      .get(`http://localhost:5001/friends?user_id=${userId}`)
+      .get(`http://localhost:5005/friends?user_id=${userId}`)
       .then((response) => {
         if (response.data) {
           console.log('Friends fetched:', response.data); // debug msg
@@ -42,7 +42,7 @@ const FriendListPage: React.FC = () => {
     }
 
     axios
-      .post('http://localhost:5001/friends', {
+      .post('http://localhost:5005/friends', {
         user_id: userId, // dynamic uID
         friend_id: friendId,
         nickname,
@@ -65,7 +65,7 @@ const FriendListPage: React.FC = () => {
     console.log('Deleting friend:', friendToDelete); // Debug
     if (friendToDelete) {
       axios
-        .delete(`http://localhost:5001/friends/${friendToDelete.list_id}`)
+        .delete(`http://localhost:5005/friends/${friendToDelete.list_id}`)
         .then(() => {
           setFriends((prev) =>
             prev.filter((friend) => friend.list_id !== friendToDelete.list_id)

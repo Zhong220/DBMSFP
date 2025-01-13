@@ -1,4 +1,8 @@
+//SplitPage.tsx
+
 import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
+
 
 const SplitPage: React.FC = () => {
   // 假資料

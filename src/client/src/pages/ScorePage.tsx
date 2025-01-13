@@ -7,7 +7,7 @@ const ScorePage: React.FC = () => {
   // 獲取個人積分
   const fetchMyScore = async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/leaderboard/score/2'); // 用戶ID自行輸入數字
+      const response = await fetch('http://localhost:5005/api/leaderboard/score/2'); // 用戶ID自行輸入數字
       const data = await response.json();
       if (data.success) {
         setMyScore(data.data.credit_score);
@@ -23,7 +23,7 @@ const ScorePage: React.FC = () => {
   // 獲取排行榜
   const fetchLeaderboard = async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/leaderboard/top');
+      const response = await fetch('http://localhost:5005/api/leaderboard/top');
       const data = await response.json();
       if (data.success) {
         setLeaderboard(data.data);
@@ -40,7 +40,7 @@ const ScorePage: React.FC = () => {
   const refreshScoreAndLeaderboard = async () => {
     try {
       // 更新 Redis
-      const updateResponse = await fetch('http://localhost:5001/api/leaderboard/update', {
+      const updateResponse = await fetch('http://localhost:5005/api/leaderboard/update', {
         method: 'POST',
       });
       const updateData = await updateResponse.json();

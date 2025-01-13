@@ -1,3 +1,4 @@
+#database.py
 import os
 import psycopg2
 from psycopg2 import OperationalError
@@ -144,9 +145,10 @@ class Database:
         return result[0]["category_id"] if result else None
 
     def delete_category(self, category_id):
-        """刪除交易類別"""
-        query = "DELETE FROM Category WHERE category_ID = %s"
-        self.execute_query(query, (category_id,))
+        self.execute_query("DELETE FROM Category WHERE category_ID = %s", (category_id,))
+
+    def get_category_by_id(self, category_id):
+        return self.execute_query("SELECT * FROM Category WHERE category_ID = %s", (category_id,))
 
     def get_category_by_id(self, category_id):
         """根據交易類別 ID 查詢類別資訊"""
