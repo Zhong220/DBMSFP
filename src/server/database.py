@@ -194,7 +194,7 @@ class Database:
         query = "SELECT * FROM transaction"
         return self.execute_query(query)
 
-# ------------------ Transaction_Debtor 表相關操作 ------------------
+# ------------------ Transaction_debtor 表相關操作 ------------------
 
     def create_transaction_debtor(self, transaction_id, debtor_id, amount):
         """新增交易債務關係"""
@@ -225,7 +225,7 @@ class Database:
     def update_debt_amount(self, transaction_id, debtor_id, new_amount):
         """更新債務人的債務金額"""
         query = """
-        UPDATE transaction_Debtor
+        UPDATE transaction_debtor
         SET amount = %s
         WHERE transaction_ID = %s AND debtor_ID = %s
         """
