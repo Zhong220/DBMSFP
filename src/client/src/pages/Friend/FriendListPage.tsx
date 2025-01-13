@@ -15,17 +15,22 @@ const FriendListPage: React.FC = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [friendToDelete, setFriendToDelete] = useState<Friend | null>(null); // Track 刪除的好友
+
   const [friendToRate, setFriendToRate] = useState<Friend | null>(null); // 用來追蹤要評分的好友
   const [selectedScore, setSelectedScore] = useState<number>(0); // 選擇的評分
   const [userId] = useState<number>(1); // temp hardcode user ID for testing
+=======
+  const [userId] = useState<number>(6); // temp hardcode user ID for testing
 
-  //const userId = 1;
+
+  //const userId = 6;
 
   // fetch friends from backend
   useEffect(() => {
     console.log('Fetching friends for user:', userId); // Debug log
     axios
-      .get(`http://localhost:5001/api/friendslist/?user_id=${userId}`)
+=======
+      .get(`http://127.0.0.1:5001/api/friendslist/?user_id=${userId}`)
       .then((response) => {
         if (response.data) {
           console.log('Friends fetched:', response.data); // debug msg
@@ -45,7 +50,9 @@ const FriendListPage: React.FC = () => {
     }
 
     axios
-      .post('http://localhost:5001/api/friendslist/', {
+
+=======
+      .post('http://127.0.0.1:5001/api/friendslist/', {
         user_id: userId, // dynamic uID
         friend_id: friendId,
         nickname,
@@ -68,7 +75,9 @@ const FriendListPage: React.FC = () => {
     console.log('Deleting friend:', friendToDelete); // Debug
     if (friendToDelete) {
       axios
-        .delete(`http://localhost:5001/api/friendslist/${friendToDelete.list_id}`)
+
+=======
+        .delete(`http://127.0.0.1:5001/api/friendslist/${friendToDelete.list_id}`)
         .then(() => {
           setFriends((prev) =>
             prev.filter((friend) => friend.list_id !== friendToDelete.list_id)

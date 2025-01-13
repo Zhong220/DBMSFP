@@ -16,12 +16,19 @@ load_dotenv()
 
 # 創建 Flask 應用
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+
+#session加的東西
+app.config['SECRET_KEY'] = 'your_secret_key'  # 替換為更安全的密鑰
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost/mydatabase'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:3001"}})
 db = Database()  # 初始化資料庫
 
 # 註冊 Blueprint
 app.register_blueprint(user_bp, url_prefix='/api/users')
 app.register_blueprint(friend_bp, url_prefix='/api/friends')
+app.register_blueprint(friendlist_bp, url_prefix='/api/friendslist')
 app.register_blueprint(transaction_bp, url_prefix='/api/transactions')
 app.register_blueprint(leaderboard_bp, url_prefix="/api/leaderboard")
 
@@ -38,4 +45,4 @@ def test_db():
     return jsonify({"message": "Database test complete", "user_id": user_id})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5001, debug=True)

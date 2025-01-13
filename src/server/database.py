@@ -112,7 +112,7 @@ class Database:
     def create_friend(self, user_id, friend_id, nickname):
         """新增好友關係"""
         query = """
-        INSERT INTO friend_List (user_ID, friend_ID, nickname)
+        INSERT INTO friend_list (user_ID, friend_ID, nickname)
         VALUES (%s, %s, %s)
         RETURNING list_ID
         """
@@ -123,13 +123,13 @@ class Database:
     #刪除好友
     def delete_friend(self, list_id):
         """刪除好友關係"""
-        query = "DELETE FROM friend_List WHERE list_ID = %s"
+        query = "DELETE FROM friend_list WHERE list_ID = %s"
         self.execute_query(query, (list_id,))
     #查詢好友列表
     def get_friends_by_user_id(self, user_id):
         """根據用戶 ID 查詢該用戶的所有好友資料"""
         query = """
-        SELECT * FROM friend_List WHERE user_ID = %s
+        SELECT * FROM friend_list WHERE user_ID = %s
         """
         result = self.execute_query(query, (user_id,))
         if result:
@@ -194,26 +194,26 @@ class Database:
         query = "SELECT * FROM transaction"
         return self.execute_query(query)
 
-# ------------------ Transaction_Debtor 表相關操作 ------------------
+# ------------------ Transaction_debtor 表相關操作 ------------------
 
     def create_transaction_debtor(self, transaction_id, debtor_id, amount):
         """新增交易債務關係"""
         query = """
-        INSERT INTO transaction_Debtor (transaction_ID, debtor_ID, amount)
+        INSERT INTO transaction_debtor (transaction_ID, debtor_ID, amount)
         VALUES (%s, %s, %s)
         """
         self.execute_query(query, (transaction_id, debtor_id, amount))
 
     def delete_transaction_debtor(self, transaction_id, debtor_id):
         """刪除交易債務關係"""
-        query = "DELETE FROM transaction_Debtor WHERE transaction_ID = %s AND debtor_ID = %s"
+        query = "DELETE FROM transaction_debtor WHERE transaction_ID = %s AND debtor_ID = %s"
         self.execute_query(query, (transaction_id, debtor_id))
 
     def get_debtors_by_transaction_id(self, transaction_id):
         """根據交易 ID 查詢該交易的所有債務人資訊"""
         query = """
         SELECT u.user_ID, u.name, u.email, td.amount
-        FROM transaction_Debtor td
+        FROM transaction_debtor td
         JOIN "user" u ON td.debtor_ID = u.user_ID
         WHERE td.transaction_ID = %s;
         """
@@ -225,7 +225,7 @@ class Database:
     def update_debt_amount(self, transaction_id, debtor_id, new_amount):
         """更新債務人的債務金額"""
         query = """
-        UPDATE transaction_Debtor
+        UPDATE transaction_debtor
         SET amount = %s
         WHERE transaction_ID = %s AND debtor_ID = %s
         """
