@@ -25,6 +25,7 @@ const SignUpPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+	console.log("handleSubmit triggered");
     const validationError = validateInputs();
     if (validationError) {
       setError(validationError); /* 設置錯誤訊息 */
@@ -33,20 +34,21 @@ const SignUpPage: React.FC = () => {
     setError(""); /* 清除錯誤訊息 */
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/user/register", {
+      const response = await fetch("http://127.0.0.1:5001/api/users/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           username,
-          password,
+          email,
+          password
         }),
       });
-  
+
       const data = await response.json();
       if (response.ok) {
-        alert("Registration successful! You can now log in.");
+        alert("Registration successful!");
         navigate("/login");
       } else {
         setError(data.error || "Something went wrong.");
@@ -56,13 +58,14 @@ const SignUpPage: React.FC = () => {
     }
   };
 
+
   /* 獲取導航函數 */
   const navigate = useNavigate();
 
   /* 改變密碼顯示狀態 */
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [imageVisible, setImageVisible] = useState(false);
-  console.log(imageVisible); // 測試用
+//  const [imageVisible, setImageVisible] = useState(false);
+//  console.log(imageVisible); // 測試用
 
   /* 切換密碼顯示或隱藏 */
   const handleShowPassword = () => {
