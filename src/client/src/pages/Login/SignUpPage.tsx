@@ -49,7 +49,7 @@ const SignUpPage: React.FC = () => {
       const data = await response.json();
       if (response.ok) {
         alert("Registration successful!");
-        navigate("/login");
+        //navigate("/login");
       } else {
         setError(data.error || "Something went wrong.");
       }

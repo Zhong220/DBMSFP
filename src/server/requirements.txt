@@ -7,3 +7,4 @@ sqlalchemy
 flask-sqlalchemy
 redis
 python-dotenv
+flask_session

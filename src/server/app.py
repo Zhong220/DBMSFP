@@ -9,7 +9,7 @@ from routes.user_routes import user_bp
 from routes.friend_routes import friend_bp
 from routes.friendlist import friendlist_bp
 from routes.transaction_routes import transaction_bp
-from routes.leaderboard_routes import leaderboard_bp  
+from routes.leaderboard_routes import leaderboard_bp
 
 # 加載環境變數
 load_dotenv()
@@ -46,3 +46,4 @@ def test_db():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001, debug=True)
+

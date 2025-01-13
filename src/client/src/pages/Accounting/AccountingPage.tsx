@@ -1,41 +1,66 @@
 import React, { useEffect, useState } from "react";
 
 const AccountingPage: React.FC = () => {
-  const [payer, setPayer] = useState("1"); // 預設登入用戶是 Alice（user_id: 1）
+  const [payer, setPayer] = useState("6"); // 預設登入用戶是 testuser（user_id: 6）
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]); // 預設當天日期
   const [splitters, setSplitters] = useState<string[]>([]); // 債務人 ID
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("1");
+  const [category, setCategory] = useState("");
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
-  const [friends, setFriends] = useState<{ id: string; name: string }[]>([]); // 好友列表
+  const [friends, setFriends] = useState<any[]>([]); // 儲存好友列表（完整數據）
+  const [categories, setCategories] = useState<any[]>([]); // 儲存分類列表
 
   // 模擬當前登入用戶
-  const loggedInUser = { id: "1", name: "Alice" };
+  const loggedInUser = { id: "6", name: "testuser" };
 
   // 獲取好友列表
   useEffect(() => {
     const fetchFriends = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:5005/api/friends/${loggedInUser.id}`);
+        const response = await fetch(
+          `http://127.0.0.1:5001/api/friendslist?user_id=${loggedInUser.id}`
+        );
         if (!response.ok) {
           throw new Error("無法獲取好友列表");
         }
+
         const result = await response.json();
-        const friendsList = result.data.map((friend: { friend_id: number; nickname: string }) => ({
-          id: friend.friend_id.toString(),
-          name: friend.nickname,
-        }));
-        // 將自己添加到好友列表
-        const updatedFriendsList = [{ id: loggedInUser.id, name: loggedInUser.name }, ...friendsList];
-        setFriends(updatedFriendsList);
+
+        // 調試用：打印原始數據
+        console.log("原始好友數據:", result);
+
+        // 將整個數據存入狀態
+        setFriends(result);
+
+        // 調試用：確認狀態是否更新
+        console.log("存入的好友數據:", result);
       } catch (error) {
         console.error("Error fetching friends:", error);
         alert("獲取好友列表失敗，請稍後再試！");
       }
     };
     fetchFriends();
+  }, []);
+
+  // 獲取分類列表
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:5001/api/transaction/categories");
+        if (!response.ok) {
+          throw new Error("無法獲取分類列表");
+        }
+
+        const result = await response.json();
+        setCategories(result.data || []);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        alert("獲取分類列表失敗，請稍後再試！");
+      }
+    };
+    fetchCategories();
   }, []);
 
   const handleSplitterChange = (userId: string) => {
@@ -58,6 +83,10 @@ const AccountingPage: React.FC = () => {
         alert("請選擇至少一個分帳者！");
         return;
       }
+      if (!category) {
+        alert("請選擇分類！");
+        return;
+      }
 
       setLoading(true);
 
@@ -65,14 +94,14 @@ const AccountingPage: React.FC = () => {
         item: description,
         amount: parseFloat(amount),
         description: note,
+        transaction_date: date,
         category_id: parseInt(category, 10),
         payer_id: parseInt(payer, 10),
-        transaction_date: date,
         splitters: splitters.map((debtor_id) => parseInt(debtor_id, 10)),
       };
 
       console.log("Submitting payload:", payload); // 調試用
-      const response = await fetch("http://127.0.0.1:5005/api/split", {
+      const response = await fetch("http://127.0.0.1:5001/api/transaction/split", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -99,7 +128,7 @@ const AccountingPage: React.FC = () => {
       setDate(new Date().toISOString().split("T")[0]);
       setSplitters([]);
       setDescription("");
-      setCategory("1");
+      setCategory("");
       setNote("");
     } catch (error) {
       if (error instanceof Error) {
@@ -162,9 +191,12 @@ const AccountingPage: React.FC = () => {
           value={category}
           onChange={(e) => setCategory(e.target.value)}
         >
-          <option value="1">飲食</option>
-          <option value="2">娛樂</option>
-          <option value="3">交通</option>
+          <option value="">選擇分類</option>
+          {categories.map((cat) => (
+            <option key={cat.category_id} value={cat.category_id}>
+              {cat.category_name}
+            </option>
+          ))}
         </select>
       </div>
       <div className="mb-3">
@@ -172,18 +204,21 @@ const AccountingPage: React.FC = () => {
         {friends.length === 0 ? (
           <p>無好友可分帳</p>
         ) : (
-          friends.map((friend) => (
-            <div key={friend.id} className="form-check">
+          friends.map((friend, index) => (
+            <div key={index} className="form-check">
               <input
                 className="form-check-input"
                 type="checkbox"
-                id={`splitter-${friend.id}`}
-                value={friend.id}
-                checked={splitters.includes(friend.id)}
+                id={`splitter-${friend.friend_id}`}
+                value={friend.friend_id}
+                checked={splitters.includes(friend.friend_id.toString())}
                 onChange={(e) => handleSplitterChange(e.target.value)}
               />
-              <label className="form-check-label" htmlFor={`splitter-${friend.id}`}>
-                {friend.name}
+              <label
+                className="form-check-label"
+                htmlFor={`splitter-${friend.friend_id}`}
+              >
+                {friend.nickname}
               </label>
             </div>
           ))

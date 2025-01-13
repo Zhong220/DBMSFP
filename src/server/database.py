@@ -51,6 +51,7 @@ class Database:
         try:
             with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(query, params)
+                self.connection.commit();
                 if cursor.description:  # 如果是查詢語句
                     return cursor.fetchall()  # 返回結果
                 return None  # 非查詢語句 (如 INSERT, UPDATE)
@@ -154,6 +155,7 @@ class Database:
         SELECT * FROM Category WHERE category_ID = %s
         """
         result = self.execute_query(query, (category_id,))
+        logger.info(f"Category ID type: {type(category_id)} - Value: {category_id}")
         if result:
             return result[0]  # 返回查詢結果的第一條資料（該類別的資訊）
         return None  # 如果找不到該類別，返回 None

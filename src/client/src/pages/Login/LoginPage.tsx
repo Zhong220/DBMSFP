@@ -28,46 +28,40 @@ const LoginPage: React.FC = () => {
     }*/
     return '';
   };
-
-
-  const handleSubmit = (e: React.FormEvent) => {
+//LoginPage.tsx
+const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const validationError = validateInputs();
-    if (validationError) {
-      setError(validationError); /* 設置錯誤訊息 */
-      return;
+    const payload = {
+      username,
+      password
+    };
+    try {
+      const response = await fetch("http://127.0.0.1:5001/api/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Login successful!");
+        navigate("/homepage");
+      } else {
+        setError(data.error || "Invalid username or password.");
+      }
+    } catch (error) {
+      setError("An error occurred during login.");
     }
-    setError(''); /* 清除錯誤訊息 */
-
-    // 從 localStorage 中讀取用戶列表
-  const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
-
-  // 驗證用戶是否存在
-  const userExists = existingUsers.find(
-    (user: { username: string; password: string }) =>
-      user.username === username && user.password === password
-  );
-
-  if (userExists) {
-    navigate('/homepage'); // 跳轉到 HomePage
-  } else {
-    setError('Invalid username or password'); // 顯示錯誤訊息
-  }
-
-    /*console.log('登入資訊:', { username, password });
-
-    if (username === 'test' && password === 'password') {
-      navigate('/homepage'); // 跳轉到 HomePage
-    } else {
-      setError('Invalid username or password');
-    }*/
-
   };
 
-  
+
+
 
   /* 獲取導航函數 */
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   /* 改變密碼圖示顯示狀態 */
   const [passwordVisible, setPasswordVisible]=useState(false);
@@ -76,7 +70,7 @@ const LoginPage: React.FC = () => {
   /* 切換密碼顯示或隱藏 */
   const handleShowPassword = () => {
     setPasswordVisible(true);
-    /*setImageVisible(true) HEREEE */ 
+    /*setImageVisible(true) HEREEE */
     setTimeout(() => {
       setPasswordVisible(false);
       setCurrentImage('/assets/hide.png');
@@ -95,31 +89,31 @@ const LoginPage: React.FC = () => {
       <button
           type="button"
           className="btn btn-outline"
-          style={{ 
+          style={{
             position: 'absolute',  // 固定定位
             top: '10px',        // 頂部距離
             left: '10px',       // 左側距離
-            zIndex: 1000 
+            zIndex: 1000
           }}
           onClick={() => navigate('/')} // 跳回welcomePage
         >
-          <img 
+          <img
                 src="/assets/back.png"
-                style={{ 
-                  width: '24px', 
-                  height: '24px' 
-                }} 
+                style={{
+                  width: '24px',
+                  height: '24px'
+                }}
               />
       </button>
       <h2 className="text-start text-success fw-bold mb-4"
       >Login</h2>
-      <form className="text-start" style={{ maxWidth: '400px' }} onSubmit={handleSubmit}>
+      <form className="text-start" style={{ maxWidth: '400px' }} onSubmit={handleLogin}>
         <div className="mb-3">
           <label htmlFor="username" className="form-label">Username</label>
-          <input type="text" 
-            className="form-control" 
-            id="username" 
-            placeholder="Enter your username" 
+          <input type="text"
+            className="form-control"
+            id="username"
+            placeholder="Enter your username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
@@ -137,21 +131,21 @@ const LoginPage: React.FC = () => {
             />
             <button
               type="button"
-              className="btn btn-outline-secondary" 
+              className="btn btn-outline-secondary"
               onClick={handleShowPassword} // 點擊切換顯示狀態
             >
-              <img 
+              <img
                 src={currentImage}
-                style={{ 
-                  width: '24px', 
-                  height: '24px' 
-                }} 
+                style={{
+                  width: '24px',
+                  height: '24px'
+                }}
               />
               {/* {passwordVisible ? '隱藏' : '顯示'} */}
             </button>
           </div>
         </div>
-        {error && <div 
+        {error && <div
           className="btn alert alert-danger"
           style={{
             width: '400px',
@@ -159,8 +153,8 @@ const LoginPage: React.FC = () => {
         >
         {error}
         </div>} {/* 顯示錯誤訊息 */}
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           className="btn btn-success w-100">Login
         </button>
       </form>
@@ -169,3 +163,4 @@ const LoginPage: React.FC = () => {
 };
 
 export default LoginPage;
+

@@ -32,10 +32,15 @@ def register():
 
         # 加密密碼
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-
         # 新增用戶
         user_id = db.add_user(username, email, hashed_password)
         if user_id:
+            nickname = "itsmeeeee" 
+            try:
+                db.create_friend(user_id, user_id, nickname)
+            except Exception as e:
+                return jsonify({'error': f"Failed to add self as friend: {str(e)}"}), 500
+
             return jsonify({'message': 'Account created successfully!', 'user_id': user_id}), 201
         else:
             return jsonify({'error': 'Failed to create user'}), 500
