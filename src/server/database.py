@@ -199,21 +199,21 @@ class Database:
     def create_transaction_debtor(self, transaction_id, debtor_id, amount):
         """新增交易債務關係"""
         query = """
-        INSERT INTO transaction_Debtor (transaction_ID, debtor_ID, amount)
+        INSERT INTO transaction_debtor (transaction_ID, debtor_ID, amount)
         VALUES (%s, %s, %s)
         """
         self.execute_query(query, (transaction_id, debtor_id, amount))
 
     def delete_transaction_debtor(self, transaction_id, debtor_id):
         """刪除交易債務關係"""
-        query = "DELETE FROM transaction_Debtor WHERE transaction_ID = %s AND debtor_ID = %s"
+        query = "DELETE FROM transaction_debtor WHERE transaction_ID = %s AND debtor_ID = %s"
         self.execute_query(query, (transaction_id, debtor_id))
 
     def get_debtors_by_transaction_id(self, transaction_id):
         """根據交易 ID 查詢該交易的所有債務人資訊"""
         query = """
         SELECT u.user_ID, u.name, u.email, td.amount
-        FROM transaction_Debtor td
+        FROM transaction_debtor td
         JOIN "user" u ON td.debtor_ID = u.user_ID
         WHERE td.transaction_ID = %s;
         """
