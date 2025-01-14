@@ -54,4 +54,3 @@ CREATE TABLE Split (
     payer_ID INTEGER NOT NULL REFERENCES "User"(user_ID) ON DELETE CASCADE,
 	amount DECIMAL(10, 2) NOT NULL CHECK (amount > 0)
 );
-

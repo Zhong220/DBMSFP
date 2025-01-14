@@ -1,5 +1,7 @@
 // SplitPage.tsx
 import React, { useState, useEffect } from "react";
+import "./SplitPage.css";
+
 
 interface SplitRecord {
   split_id: number;
@@ -22,13 +24,20 @@ const SplitPage: React.FC = () => {
         }
         const data = await resp.json();
         if (data.data) {
-          setSplits(data.data);
+          const formattedSplits = data.data.map((split: any) => ({
+            split_id: split.split_ID,
+            transaction_id: split.transaction_ID,
+            debtor_id: split.debtor_ID,
+            payer_id: split.payer_ID,
+            amount: split.amount,
+          }));
+          setSplits(formattedSplits);
         }
       } catch (err: any) {
         console.error("Error fetching splits:", err);
         setError(err.message);
       }
-    };
+    };    
     fetchSplits();
   }, []);
 
@@ -70,3 +79,4 @@ const SplitPage: React.FC = () => {
 };
 
 export default SplitPage;
+

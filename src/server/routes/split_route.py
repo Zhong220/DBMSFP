@@ -33,7 +33,7 @@ def get_splits():
                 t."item" AS "transaction_item",
                 t."description" AS "transaction_description"
             FROM "split" s
-            LEFT JOIN transactions t
+            LEFT JOIN "transactions" t
                 ON s."transaction_ID" = t."transaction_ID"
         """
         results = db.execute_query(query)
