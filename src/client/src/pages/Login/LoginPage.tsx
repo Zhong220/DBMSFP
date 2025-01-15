@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-/* import witnessIcon from '../../assets/hide.png'; */
+import "./styles.css";
 
 const LoginPage: React.FC = () => {
 
@@ -8,29 +8,31 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string>('');/* 存取錯誤訊息 */
   const [currentImage, setCurrentImage] = useState('/assets/hide.png');
+  const [showModal, setShowModal] = useState(false); // 控制彈窗顯示
 
-  // 模擬用戶數據 （問題：UNUSED VARIABLE 1）
-  /*const mockUsers = [
-    { username: 'testuser', password: 'testpassword' },
-    { username: 'admin', password: 'adminpassword' },
-  ]; */
 
   /* 驗證有效輸入 */
   const validateInputs = (): string => {
     if (!username) {
-      return 'Enter an username';
+      return 'Enter an username🤨';
     }
     if (!password) {
-      return 'Enter a password';
+      return 'Enter a password🤨';
     }
-    /*if (password.length < 8) {
-      return 'Use 8 characters or more for your password';
-    }*/
     return '';
   };
-//LoginPage.tsx
-const handleLogin = async (e: React.FormEvent) => {
+
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const validationError = validateInputs();
+    if (validationError) {
+      setError(validationError);
+      setShowModal(true);
+      return;
+    }
+
     const payload = {
       username,
       password
@@ -43,25 +45,23 @@ const handleLogin = async (e: React.FormEvent) => {
         },
         body: JSON.stringify(payload),
       });
-
+  
       const data = await response.json();
-
+  
       if (response.ok) {
         alert("Login successful!");
-        navigate("/homepage");
+        navigate("/homepage");  // 登入成功後跳轉到用戶資料頁面
       } else {
         setError(data.error || "Invalid username or password.");
+        setShowModal(true);
       }
     } catch (error) {
       setError("An error occurred during login.");
+      setShowModal(true);
     }
   };
-
-
-
-
   /* 獲取導航函數 */
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
 
   /* 改變密碼圖示顯示狀態 */
   const [passwordVisible, setPasswordVisible]=useState(false);
@@ -70,7 +70,7 @@ const handleLogin = async (e: React.FormEvent) => {
   /* 切換密碼顯示或隱藏 */
   const handleShowPassword = () => {
     setPasswordVisible(true);
-    /*setImageVisible(true) HEREEE */
+    /*setImageVisible(true) HEREEE */ 
     setTimeout(() => {
       setPasswordVisible(false);
       setCurrentImage('/assets/hide.png');
@@ -89,41 +89,47 @@ const handleLogin = async (e: React.FormEvent) => {
       <button
           type="button"
           className="btn btn-outline"
-          style={{
+          style={{ 
             position: 'absolute',  // 固定定位
             top: '10px',        // 頂部距離
             left: '10px',       // 左側距離
-            zIndex: 1000
+            zIndex: 1000 
           }}
           onClick={() => navigate('/')} // 跳回welcomePage
         >
-          <img
+          <img 
                 src="/assets/back.png"
-                style={{
-                  width: '24px',
-                  height: '24px'
-                }}
+                style={{ 
+                  width: '24px', 
+                  height: '24px' 
+                }} 
               />
       </button>
-      <h2 className="text-start text-success fw-bold mb-4"
+      <h2 className="title-text"
       >Login</h2>
-      <form className="text-start" style={{ maxWidth: '400px' }} onSubmit={handleLogin}>
-        <div className="mb-3">
-          <label htmlFor="username" className="form-label">Username</label>
-          <input type="text"
-            className="form-control"
-            id="username"
-            placeholder="Enter your username"
+      <form className="text-start" 
+      style={{ 
+        maxWidth: '400px' 
+      }} 
+      onSubmit={handleLogin}>
+        <div className="input-container">
+          <label htmlFor="username" className="subtitle-text">
+            Username
+          </label>
+          <input type="text" 
+            className="input-field" 
+            id="username" 
+            placeholder="Enter your username" 
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="password" className="form-label">Password</label>
+          <label htmlFor="password" className="subtitle-text">Password</label>
           <div className="input-group">
             <input
               type={passwordVisible ? 'text' : 'password'} // 動態設置輸入框類型
-              className="form-control"
+              className="input-field"
               id="password"
               placeholder="Enter your password"
               value={password}
@@ -131,36 +137,36 @@ const handleLogin = async (e: React.FormEvent) => {
             />
             <button
               type="button"
-              className="btn btn-outline-secondary"
+              className="btn btn-outline-secondary" 
               onClick={handleShowPassword} // 點擊切換顯示狀態
             >
-              <img
+              <img 
                 src={currentImage}
-                style={{
-                  width: '24px',
-                  height: '24px'
-                }}
+                style={{ 
+                  width: '24px', 
+                  height: '24px' 
+                }} 
               />
               {/* {passwordVisible ? '隱藏' : '顯示'} */}
             </button>
           </div>
         </div>
-        {error && <div
-          className="btn alert alert-danger"
-          style={{
-            width: '400px',
-          }}
-        >
-        {error}
-        </div>} {/* 顯示錯誤訊息 */}
-        <button
-          type="submit"
-          className="btn btn-success w-100">Login
+        <button 
+          type="submit" 
+          className="start-button">Login
         </button>
-      </form>
+        </form>
+
+        {showModal && (
+          <div className="modal-overlay">
+            <div className="modal-box">
+              <p className="error-text">{error}</p>
+            <button className="close-button" onClick={() => setShowModal(false)}>Close</button>
+        </div> {/* 顯示錯誤訊息 */}
+      </div>
+      )}
     </div>
   );
 };
 
 export default LoginPage;
-

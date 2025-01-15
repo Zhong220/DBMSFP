@@ -1,38 +1,42 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "./styles.css";
 
 const SignUpPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
-  const [domain, setDomain] = useState("");
+  const [domain, setDomain] = useState("gmail.com");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string>(""); /* 存取錯誤訊息 */
   const [currentImage, setCurrentImage] = useState("/assets/hide.png");
+  const [showModal, setShowModal] = useState(false); // 控制彈窗顯示
 
   /* 驗證有效輸入 */
   const validateInputs = (): string => {
     if (!username) {
-      return "Enter an username";
+      return "Enter your username🤨";
+    }
+    if (!email) {
+      return "Enter your email🤨"
     }
     if (!password) {
-      return "Enter a password";
+      return "Enter your password🤨";
     }
     if (password.length < 8) {
-      return "Use 8 characters or more for your password";
+      return "Use 8 characters or more for your password💪";
     }
     return "";
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-	console.log("handleSubmit triggered");
+
     const validationError = validateInputs();
     if (validationError) {
-      setError(validationError); /* 設置錯誤訊息 */
+      setError(validationError);
+      setShowModal(true);
       return;
     }
-    setError(""); /* 清除錯誤訊息 */
-
     try {
       const response = await fetch("http://127.0.0.1:5001/api/users/register", {
         method: "POST",
@@ -45,27 +49,28 @@ const SignUpPage: React.FC = () => {
           password
         }),
       });
-
+  
       const data = await response.json();
       if (response.ok) {
         alert("Registration successful!");
-        //navigate("/login");
+        navigate("/login");
       } else {
         setError(data.error || "Something went wrong.");
+        setShowModal(true);
       }
     } catch (error) {
       setError("An error occurred while registering. Please try again.");
+      setShowModal(true);
     }
   };
-
 
   /* 獲取導航函數 */
   const navigate = useNavigate();
 
   /* 改變密碼顯示狀態 */
   const [passwordVisible, setPasswordVisible] = useState(false);
-//  const [imageVisible, setImageVisible] = useState(false);
-//  console.log(imageVisible); // 測試用
+  const [imageVisible, setImageVisible] = useState(false);
+  console.log(imageVisible); // 測試用
 
   /* 切換密碼顯示或隱藏 */
   const handleShowPassword = () => {
@@ -84,7 +89,7 @@ const SignUpPage: React.FC = () => {
 
   return (
     <div className="container mt-5">
-      <h2 className="text-start text-primary fw-bold mb-4">
+      <h2 className="title-text">
         Create an account
       </h2>
       <form
@@ -92,13 +97,13 @@ const SignUpPage: React.FC = () => {
         style={{ maxWidth: "400px" }}
         onSubmit={handleSubmit}
       >
-        <div className="mb-3">
-          <label htmlFor="username" className="form-label">
+        <div className="input-container">
+          <label htmlFor="username" className="subtitle-text">
             Username
           </label>
           <input
             type="text"
-            className="form-control"
+            className="input-field"
             id="username"
             placeholder="Enter your username"
             value={username}
@@ -106,21 +111,26 @@ const SignUpPage: React.FC = () => {
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="email" className="form-label">
+          <label htmlFor="email" className="subtitle-text">
             Email
           </label>
           <div className="input-group">
             {/* 輸入框 */}
             <input
               type="text"
-              className="form-control"
+              className="input-field"
               id="email"
               placeholder=" "
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
             {/* @ */}
-            <span className="input-group-text">@</span>
+            <span className="input-group-text"
+            style={{
+              width: "40px",
+              height: "45px"
+            }}
+            >@</span>
             {/* 下拉式選單 */}
             <select
               className="form-select"
@@ -136,13 +146,13 @@ const SignUpPage: React.FC = () => {
           </div>
         </div>
         <div className="mb-3">
-          <label htmlFor="password" className="form-label">
+          <label htmlFor="password" className="subtitle-text">
             Password
           </label>
           <div className="input-group">
             <input
               type={passwordVisible ? "text" : "password"} // 動態設置輸入框類型
-              className="form-control"
+              className="input-field"
               id="password"
               placeholder="Enter your password"
               value={password}
@@ -163,29 +173,27 @@ const SignUpPage: React.FC = () => {
             </button>
           </div>
         </div>
-        {error && (
-          <div
-            className="btn alert alert-danger"
-            style={{
-              width: "400px",
-              /* overflowWrap='break-word', /*長字串自動換行*/
-            }}
-          >
-            {error}
-          </div>
-        )}{" "}
-        {/* 顯示錯誤訊息 */}
-        <button type="submit" className="btn btn-primary w-100 mb-3">
+        <button type="submit" className="login-button">
           GET STARTED
         </button>
         <button
           type="button"
-          className="btn btn-light w-100"
+          className="login-button"
           onClick={() => navigate("/Login")}
         >
-          Login
+          Login:
         </button>
-      </form>
+        </form>
+
+        {/* 顯示錯誤訊息 */}
+        {showModal && ( 
+          <div className="modal-overlay">
+            <div className="modal-box">
+              <p className="error-text">{error}</p>
+            <button className="close-button" onClick={() => setShowModal(false)}>Close</button>
+        </div>
+      </div>
+      )}
     </div>
   );
 };
