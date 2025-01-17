@@ -6,14 +6,14 @@ from auth import create_account
 # 建立 Blueprint
 user_bp = Blueprint('user', __name__)
 db = Database()  # 初始化自定義 Database 類
-db.connect();
+db.connect()
 bcrypt = Bcrypt()
 
 # 註冊使用者
-@user_bp.route('/register', methods=['POST'])
+@user_bp.route('/register/', methods=['POST'])
 def register():
     try:
-        db.connect();
+        db.connect()
         data = request.get_json()
         username = data.get('username')
         email = data.get('email')
@@ -46,10 +46,10 @@ def register():
 
 
 # 登錄
-@user_bp.route('/login', methods=['POST'])
+@user_bp.route('/login/', methods=['POST'])
 def login():
     try:
-        db.connect();
+        db.connect()
         data = request.get_json()
         username = data.get('username')
         password = data.get('password')
@@ -70,7 +70,7 @@ def login():
         db.close()
 
 # 獲取用戶資料
-@user_bp.route('/profile', methods=['GET'])
+@user_bp.route('/profile/', methods=['GET'])
 def get_user_profile():
     try:
         db.connect()
@@ -95,7 +95,7 @@ def get_user_profile():
         db.close()
 
 # 登出
-@user_bp.route('/logout', methods=['POST'])
+@user_bp.route('/logout/', methods=['POST'])
 def logout():
     try:
         db.connect()

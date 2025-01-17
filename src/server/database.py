@@ -70,13 +70,13 @@ class Database:
     def add_user(self, name, email, pwd_hash):
         """新增用戶"""
         # 檢查使用者是否已存在
-        query = "SELECT * FROM \"User\" WHERE name = %s"
+        query = 'SELECT * FROM "user" WHERE name = %s'
         existing_user = self.execute_query(query, (name,))
         if existing_user:
             return None  # 使用者已存在，返回 None
 
         query = """
-        INSERT INTO "User" (name, email, pwd_hash, credit_score)
+        INSERT INTO "user" (name, email, pwd_hash, credit_score)
         VALUES (%s, %s, %s, 0)
         RETURNING user_ID
         """
@@ -86,14 +86,14 @@ class Database:
     #刪除使用者
     def delete_user(self, user_id):
         """刪除用戶"""
-        query = "DELETE FROM \"User\" WHERE user_ID = %s"
+        query = 'DELETE FROM "user" WHERE user_ID = %s'
         self.execute_query(query, (user_id,))
 
     #用ID獲得使用者資料
     def get_user_by_id(self, user_id):
         """根據用戶 ID 查詢用戶資料"""
         query = """
-        SELECT * FROM "User" WHERE user_ID = %s
+        SELECT * FROM "user" WHERE user_ID = %s
         """
         result = self.execute_query(query, (user_id,))
         if result:
@@ -103,7 +103,7 @@ class Database:
     #更新用戶信用積分
     def update_credit_score(self, user_id, new_score):
         """更新用戶信用分數"""
-        query = "UPDATE \"User\" SET credit_score = %s WHERE user_ID = %s"
+        query = "UPDATE \"user\" SET credit_score = %s WHERE user_ID = %s"
         self.execute_query(query, (new_score, user_id))
 
     # ------------------ Friend_List 表相關操作 ------------------
@@ -111,7 +111,7 @@ class Database:
     def create_friend(self, user_id, friend_id, nickname):
         """新增好友關係"""
         query = """
-        INSERT INTO Friend_List (user_ID, friend_ID, nickname)
+        INSERT INTO Friend_List (user_id, friend_id, nickname)
         VALUES (%s, %s, %s)
         RETURNING list_ID
         """
@@ -120,13 +120,13 @@ class Database:
     #刪除好友
     def delete_friend(self, list_id):
         """刪除好友關係"""
-        query = "DELETE FROM Friend_List WHERE list_ID = %s"
+        query = "DELETE FROM Friend_List WHERE list_id = %s"
         self.execute_query(query, (list_id,))
     #查詢好友列表
     def get_friends_by_user_id(self, user_id):
         """根據用戶 ID 查詢該用戶的所有好友資料"""
         query = """
-        SELECT * FROM Friend_List WHERE user_ID = %s
+        SELECT * FROM Friend_List WHERE user_id = %s
         """
         result = self.execute_query(query, (user_id,))
         if result:
@@ -137,23 +137,23 @@ class Database:
     def create_category(self, category_name):
         """新增交易類別"""
         query = """
-        INSERT INTO Category (category_name)
+        INSERT INTO category (category_name)
         VALUES (%s)
-        RETURNING category_ID
+        RETURNING category_id
         """
         result = self.execute_query(query, (category_name,))
         return result[0]["category_id"] if result else None
 
     def delete_category(self, category_id):
-        self.execute_query("DELETE FROM Category WHERE category_ID = %s", (category_id,))
+        self.execute_query("DELETE FROM category WHERE category_id = %s", (category_id,))
 
     def get_category_by_id(self, category_id):
-        return self.execute_query("SELECT * FROM Category WHERE category_ID = %s", (category_id,))
+        return self.execute_query("SELECT * FROM category WHERE category_id = %s", (category_id,))
 
     def get_category_by_id(self, category_id):
         """根據交易類別 ID 查詢類別資訊"""
         query = """
-        SELECT * FROM Category WHERE category_ID = %s
+        SELECT * FROM category WHERE category_id = %s
         """
         result = self.execute_query(query, (category_id,))
         if result:
@@ -165,7 +165,7 @@ class Database:
     def create_transaction(self, item, amount, description, transaction_date, category_id, payer_id, split_count):
         """新增交易"""
         query = """
-        INSERT INTO Transaction (item, amount, description, transaction_date, category_ID, payer_ID, split_count)
+        INSERT INTO transaction (item, amount, description, transaction_date, category_id, payer_id, split_count)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
         RETURNING transaction_ID
         """
@@ -174,13 +174,13 @@ class Database:
 
     def delete_transaction(self, transaction_id):
         """刪除交易"""
-        query = "DELETE FROM Transaction WHERE transaction_ID = %s"
+        query = "DELETE FROM transaction WHERE transaction_id = %s"
         self.execute_query(query, (transaction_id,))
 
     def get_transaction_by_id(self, transaction_id):
         """根據交易 ID 查詢交易資料"""
         query = """
-        SELECT * FROM Transaction WHERE transaction_ID = %s
+        SELECT * FROM transaction WHERE transaction_id = %s
         """
         result = self.execute_query(query, (transaction_id,))
         if result:
@@ -189,7 +189,7 @@ class Database:
 
 
     def get_all_transactions(self):
-        query = "SELECT * FROM Transaction"
+        query = "SELECT * FROM transaction"
         return self.execute_query(query)
 
 # ------------------ Transaction_Debtor 表相關操作 ------------------
@@ -197,22 +197,22 @@ class Database:
     def create_transaction_debtor(self, transaction_id, debtor_id, amount):
         """新增交易債務關係"""
         query = """
-        INSERT INTO Transaction_Debtor (transaction_ID, debtor_ID, amount)
+        INSERT INTO transaction_debtor (transaction_id, debtor_id, amount)
         VALUES (%s, %s, %s)
         """
         self.execute_query(query, (transaction_id, debtor_id, amount))
 
     def delete_transaction_debtor(self, transaction_id, debtor_id):
         """刪除交易債務關係"""
-        query = "DELETE FROM Transaction_Debtor WHERE transaction_ID = %s AND debtor_ID = %s"
+        query = "DELETE FROM transaction_debtor WHERE transaction_id = %s AND debtor_id = %s"
         self.execute_query(query, (transaction_id, debtor_id))
 
     def get_debtors_by_transaction_id(self, transaction_id):
         """根據交易 ID 查詢該交易的所有債務人資訊"""
         query = """
         SELECT u.user_ID, u.name, u.email, td.amount
-        FROM Transaction_Debtor td
-        JOIN "User" u ON td.debtor_ID = u.user_ID
+        FROM transaction_debtor td
+        JOIN "user" u ON td.debtor_ID = u.user_ID
         WHERE td.transaction_ID = %s;
         """
         result = self.execute_query(query, (transaction_id,))
@@ -223,9 +223,9 @@ class Database:
     def update_debt_amount(self, transaction_id, debtor_id, new_amount):
         """更新債務人的債務金額"""
         query = """
-        UPDATE Transaction_Debtor
+        UPDATE transaction_debtor
         SET amount = %s
-        WHERE transaction_ID = %s AND debtor_ID = %s
+        WHERE transaction_id = %s AND debtor_id = %s
         """
         self.execute_query(query, (new_amount, transaction_id, debtor_id))
 
@@ -233,24 +233,24 @@ class Database:
     def create_split(self, transaction_id, debtor_id, payer_id, amount):
         """新增分帳資訊"""
         query = """
-        INSERT INTO Split (transaction_ID, debtor_ID, payer_ID, amount)
+        INSERT INTO split (transaction_id, debtor_id, payer_id, amount)
         VALUES (%s, %s, %s, %s)
-        RETURNING split_ID
+        RETURNING split_id
         """
         result = self.execute_query(query, (transaction_id, debtor_id, payer_id, amount))
         return result[0]["split_id"] if result else None
 
     def delete_split(self, split_id):
         """刪除分帳資訊"""
-        query = "DELETE FROM Split WHERE split_ID = %s"
+        query = "DELETE FROM split WHERE split_id = %s"
         self.execute_query(query, (split_id,))
 
     def get_splits_by_transaction_id(self, transaction_id):
         """根據交易 ID 查詢該交易的所有分帳資訊"""
         query = """
-        SELECT split_ID, transaction_ID, debtor_ID, payer_ID, amount
-        FROM Split
-        WHERE transaction_ID = %s;
+        SELECT split_id, transaction_id, debtor_id, payer_id, amount
+        FROM split
+        WHERE transaction_id = %s;
         """
         result = self.execute_query(query, (transaction_id,))
         if result:
@@ -259,9 +259,9 @@ class Database:
     def update_split_amount(self, transaction_id, debtor_id, new_amount):
         """根據交易 ID 和債務人 ID 更新分帳金額"""
         query = """
-        UPDATE Split
+        UPDATE split
         SET amount = %s
-        WHERE transaction_ID = %s AND debtor_ID = %s;
+        WHERE transaction_id = %s AND debtor_id = %s;
         """
         self.execute_query(query, (new_amount, transaction_id, debtor_id))
         
@@ -272,12 +272,12 @@ class Database:
         # 定義 SQL 查詢語句，用於從 "User" 表中獲取前 100 名的用戶數據
         query = """
         SELECT user_id, name, credit_score
-        FROM "User"
+        FROM "user"
         ORDER BY credit_score DESC
         LIMIT 100;
         """
         try:
-            result = self.execute_query(query) # 執行 SQL 查詢
+            result = self.execute_query(query) # f執行 SQL 查詢
             if result:          # 如果查詢有結果，則更新 Redis 中的排行榜數據
                 if not self.redis_client: # 確保 Redis 連接已初始化
                     raise Exception("Redis client not initialized", flush = True)

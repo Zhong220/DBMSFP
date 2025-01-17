@@ -71,23 +71,22 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await fetch("http://localhost:5005/api/transactions");
+        const response = await fetch("http://localhost:5005/api/transaction/");
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const result = await response.json();
 
-        // 將後端的 transaction_ID → transaction_id
-        const formattedData = result.data.map((tx: any) => ({
-          transaction_id: tx.transaction_ID,
+        const formattedData = (result.data || []).map((tx: any) => ({
+          transaction_id: tx.transaction_ID || tx.transaction_id,
           item: tx.item,
-          amount: parseFloat(tx.amount),
-          description: tx.description,
-          transaction_date: tx.transaction_date,
-          category_id: tx.category_ID,
-          category_name: tx.category_name,
-          payer_id: tx.payer_ID,
-          split_count: tx.split_count,
+          amount: parseFloat(tx.amount) || 0,
+          description: tx.description || "",
+          transaction_date: tx.transaction_date || "",
+          category_id: tx.category_ID || tx.category_id,
+          category_name: tx.category_name || "未分類",
+          payer_id: tx.payer_ID || tx.payer_id,
+          split_count: tx.split_count || 0,
           splitters: tx.splitters || [],
         }));
 
@@ -102,13 +101,13 @@ const HomePage: React.FC = () => {
 
     const fetchCategories = async () => {
       try {
-        const response = await fetch("http://localhost:5005/api/categories");
+        const response = await fetch("http://localhost:5005/api/category/");
         if (!response.ok) {
-          throw new Error("Failed to fetch categories");
+          throw new Error("Failed to fetch category");
         }
         const result = await response.json();
         if (!result.data || !Array.isArray(result.data)) {
-          throw new Error("No categories data available");
+          throw new Error("No category data available");
         }
         const categoryMap = result.data.reduce(
           (map: { [key: number]: string }, category: any) => {
@@ -117,7 +116,7 @@ const HomePage: React.FC = () => {
           },
           {}
         );
-        setCategories(categoryMap);
+        setCategories({});
       } catch (err) {
         console.error("Error fetching categories:", err);
       }
@@ -141,14 +140,10 @@ const HomePage: React.FC = () => {
   const calculateSplits = () => {
     const newSplitLines: SplitLine[] = [];
 
-    // 您的 "selectedTransactions" 是使用者勾選的交易
     selectedTransactions.forEach((tx, index) => {
-      // debtorId 可以用固定值(例如3)或其它邏輯
       const debtorId = 3;
       const payerId = tx.payer_id;
-      // 也可將 tx.amount / tx.split_count 之類
-
-      // 產生一筆「分帳行」，含 5 個欄位
+      
       const line: SplitLine = {
         splitId: "temp-" + index, // 假的 local ID
         transactionId: tx.transaction_id,
@@ -176,7 +171,7 @@ const HomePage: React.FC = () => {
         amount: line.amount,
       }));
 
-      const resp = await fetch("http://localhost:5005/api/split/splits", {
+      const resp = await fetch("http://localhost:5005/api/split/splits/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -201,7 +196,7 @@ const HomePage: React.FC = () => {
     console.log("Check splits before fetch:", splitResults);
     try {
       const response = await fetch(
-        "http://localhost:5005/api/transactions/splits",
+        "http://localhost:5005/api/transactions/split/",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

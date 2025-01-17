@@ -9,7 +9,7 @@ db = Database()
 db.connect() # connect to db
 
 #get friends(看user_id)
-@friendlist_bp.route('/friends', methods=['GET'])
+@friendlist_bp.route('/friends/', methods=['GET'])
 def get_friends():
     user_id = request.args.get('user_id')  # get user ID from query param
     
@@ -29,7 +29,7 @@ def get_friends():
     
 
 #add a freind (add friend) ok
-@friendlist_bp.route('/friends', methods=['POST'])
+@friendlist_bp.route('/friends/', methods=['POST'])
 def add_friend():
     data = request.json  # Extract JSON payload
     user_id = data.get('user_id')
@@ -66,7 +66,7 @@ def add_friend():
     
     
 #delete a friend（用list_id刪除好友）
-@friendlist_bp.route('/friends/<int:list_id>', methods=['DELETE'])
+@friendlist_bp.route('/friends/<int:list_id>/', methods=['DELETE'])
 def delete_friend(list_id):
     try:
         db.delete_friend(list_id)

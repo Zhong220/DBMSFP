@@ -3,7 +3,6 @@ from flask import Flask, request, jsonify
 from flask import Blueprint
 from database import Database
 from dotenv import load_dotenv
-from flask_cors import CORS
 from datetime import datetime
 import logging
 
@@ -28,32 +27,37 @@ def get_transactions():
     """
     try:
         db.connect()
+        print("Database connected:", db.connection is not None)  # 打印连接状态
         query = '''
             SELECT
-                t."transaction_ID",
+                t."transaction_id" AS transaction_id,
                 t."item",
                 t."amount",
                 t."description",
                 t."transaction_date",
-                t."category_ID",
+                t."category_id" AS category_id,
                 c."category_name",
-                t."payer_ID",
+                t."payer_id" AS payer_id,
                 t."split_count"
-            FROM transactions t
-            LEFT JOIN category c
-                ON t."category_ID" = c."category_ID"
+            FROM "transaction" t
+            LEFT JOIN "category" c
+                ON t."category_id" = c."category_id"
         '''
+
+
         rows = db.execute_query(query)
+        print("Query Result:", rows)  # 打印查询结果
         return create_response(data=rows, status=200)
 
     except Exception as e:
+        print("Database connection error:", e)
         logger.exception("Error fetching transactions: %s", e)
         return create_response(error=str(e), status=500)
 
     finally:
         db.close()
 
-@transaction_bp.route("/transactions", methods=["POST"])
+@transaction_bp.route("/transaction/", methods=["POST"])
 def add_transaction():
     """
     新增交易 (例如在 /accounting 頁面用),
@@ -97,7 +101,7 @@ def add_transaction():
         db.close()
 
 # ★ 修改點 (2)：分帳 (save_splits_for_existing_transactions)
-@transaction_bp.route("/splits", methods=["POST"])
+@transaction_bp.route("/split/", methods=["POST"])
 def save_splits_for_existing_transactions():
     """
     前端送來：
@@ -114,7 +118,7 @@ def save_splits_for_existing_transactions():
         db.connect()
         data = request.json or {}
 
-        splits = data.get("splits")
+        splits = data.get("split")
         if not splits:
             return create_response(error="缺少 splits", status=400)
 
@@ -132,22 +136,22 @@ def save_splits_for_existing_transactions():
                 # 寫入 transaction_debtor
                 db.execute_query(
                     """
-                    INSERT INTO transaction_debtor (transaction_ID, debtor_ID, amount)
+                    INSERT INTO transaction_debtor ("transaction_id", "debtor_id", "amount")
                     VALUES (%s, %s, %s)
                     """,
                     (transaction_id, debtor_id, float(amountVal))
                 )
 
-                # 同步插入 Split (若您想留更完整紀錄)
+                # 同步插入 split (若想留更完整紀錄)
                 db.execute_query(
                     """
-                    INSERT INTO "Split" (transaction_ID, debtor_ID, payer_ID, amount)
+                    INSERT INTO "split" ("transaction_id", "debtor_id", "payer_id", "amount")
                     VALUES (%s, %s, %s, %s)
                     """,
                     (transaction_id, debtor_id, payer_id, float(amountVal))
                 )
 
-        return create_response(message="Splits saved successfully.", status=201)
+        return create_response(message="split saved successfully.", status=201)
 
     except Exception as e:
         logger.exception(f"Error saving splits: {e}")
@@ -163,66 +167,8 @@ def save_splits_for_existing_transactions():
 #
 # 例如保留一個 split_transaction() 來「一次性創建交易 + 分帳」,
 # 同樣別忘了排除自己:
-#
-@transaction_bp.route("/split", methods=["POST"])
-def split_transaction():
-    """
-    可能舊功能: 一次性創建新交易 + 直接分帳
-    """
-    try:
-        db.connect()
-        data = request.json
 
-        required_fields = ["item", "amount", "description", "category_id", "payer_id", "transaction_date", "splitters"]
-        missing_fields = [f for f in required_fields if f not in data]
-        if missing_fields:
-            return create_response(error=f"Missing fields: {missing_fields}", status=400)
-
-        # 排除自己
-        payer_id = data["payer_id"]
-        filtered_splitters = [d for d in data["splitters"] if d != payer_id]
-
-        transaction_date = datetime.strptime(data["transaction_date"], "%Y-%m-%d").date()
-
-        # 建交易
-        rows = db.execute_query(
-            '''
-            INSERT INTO transactions (item, amount, description, transaction_date, category_ID, payer_ID, split_count)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-            RETURNING transaction_ID
-            ''',
-            (data["item"], data["amount"], data["description"], transaction_date, data["category_id"], payer_id, len(filtered_splitters))
-        )
-        transaction_id = rows[0]["transaction_id"]
-
-        # 寫入 transaction_debtor, split
-        if filtered_splitters:
-            split_amount = round(data["amount"] / len(filtered_splitters), 2)
-            for debtor_id in filtered_splitters:
-                db.execute_query(
-                    '''
-                    INSERT INTO transaction_debtor (transaction_ID, debtor_ID, amount)
-                    VALUES (%s, %s, %s)
-                    ''',
-                    (transaction_id, debtor_id, split_amount)
-                )
-                db.execute_query(
-                    '''
-                    INSERT INTO "Split" (transaction_ID, debtor_ID, payer_ID, amount)
-                    VALUES (%s, %s, %s, %s)
-                    ''',
-                    (transaction_id, debtor_id, payer_id, split_amount)
-                )
-
-        return create_response(message="Transaction created + splitted ok.", data={"transaction_id": transaction_id}, status=201)
-    except Exception as e:
-        logger.exception(f"split_transaction error: {e}")
-        return create_response(error=str(e), status=500)
-    finally:
-        db.close()
-
-
-@transaction_bp.route("/split-bulk", methods=["POST"])
+@transaction_bp.route("/split-bulk/", methods=["POST"])
 def save_split_lines():
     """
     前端傳來:
@@ -252,7 +198,7 @@ def save_split_lines():
             # (1) transaction_debtor
             db.execute_query(
                 """
-                INSERT INTO transaction_debtor (transaction_ID, debtor_ID, amount)
+                INSERT INTO transaction_debtor ("transaction_id", "debtor_id", "amount")
                 VALUES (%s, %s, %s)
                 """,
                 (tx_id, debtor_id, amt)
@@ -261,7 +207,7 @@ def save_split_lines():
             # (2) split (小寫 s，確保和 schema.sql 裡的表名一致)
             db.execute_query(
                 """
-                INSERT INTO split (transaction_ID, debtor_ID, payer_ID, amount)
+                INSERT INTO split ("transaction_id", "debtor_id", "payer_id", "amount")
                 VALUES (%s, %s, %s, %s)
                 """,
                 (tx_id, debtor_id, payer_id, amt)

@@ -3,7 +3,6 @@ from flask import Flask, request, jsonify
 from flask import Blueprint
 from database import Database
 from dotenv import load_dotenv
-from flask_cors import CORS
 from datetime import datetime
 import logging
 
@@ -24,17 +23,13 @@ def get_splits():
 
         # SQL 查詢語句
         query = """
-            SELECT
-                s."split_ID",
-                s."transaction_ID",
-                s."debtor_ID",
-                s."payer_ID",
-                s."amount",
-                t."item" AS "transaction_item",
-                t."description" AS "transaction_description"
-            FROM "split" s
-            LEFT JOIN "transactions" t
-                ON s."transaction_ID" = t."transaction_ID"
+            SELECT 
+            s."split_id",
+            s."transaction_id", 
+            s."debtor_id", 
+            s."payer_id", 
+            s."amount" 
+            FROM "split" s;
         """
         results = db.execute_query(query)
 
@@ -48,17 +43,8 @@ def get_splits():
         db.close()
 
 
-@split_bp.route("/splits", methods=["POST"])
+@split_bp.route("/splits/", methods=["POST"])
 def create_splits():
-    """
-    接收前端傳來的一組分帳資料，逐筆 INSERT 進 "split" 表 (大寫欄位)
-    預期前端格式:
-      [
-        { transactionId: 10, debtorId: 3, payerId: 1, amount: 100 },
-        { transactionId: 11, debtorId: 5, payerId: 2, amount: 250 },
-        ...
-      ]
-    """
     try:
         new_splits = request.json  # 預期是一個陣列
 
@@ -71,11 +57,11 @@ def create_splits():
 
             # ★ INSERT 時，同樣要對 "transaction_ID", "debtor_ID" 等加雙引號
             db.execute_query("""
-                INSERT INTO "split" ("transaction_ID", "debtor_ID", "payer_ID", "amount")
+                INSERT INTO "split" ("transaction_id", "debtor_id", "payer_id", "amount")
                 VALUES (%s, %s, %s, %s)
             """, (tx_id, debtor_id, payer_id, amt))
 
-        return jsonify({"message": "Split lines inserted successfully"}), 201
+        return jsonify({"message": "split lines inserted successfully"}), 201
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

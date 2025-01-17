@@ -10,6 +10,8 @@ services:
       - .env
     depends_on:
       - server
+    networks:
+      - DBMSFP_network
 
   server:
     container_name: server
@@ -29,6 +31,8 @@ services:
       - db
       - redis
     working_dir: /app  # 確保這個設置是正確的，應該指向專案的根目錄
+    networks:
+      - DBMSFP_network
 
   redis:
     container_name: redis_new
@@ -44,6 +48,8 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
+    networks:
+      - DBMSFP_network
 
   db:
     container_name: db
@@ -64,6 +70,8 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
+    networks:
+      - DBMSFP_network
 
   pgadmin:
     container_name: pgadmin_new
@@ -76,6 +84,8 @@ services:
       PGADMIN_DEFAULT_PASSWORD: admin
     depends_on:
       - db
+    networks:
+      - DBMSFP_network
 
 volumes:
   pg_data:

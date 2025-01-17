@@ -25,10 +25,10 @@ const SplitPage: React.FC = () => {
         const data = await resp.json();
         if (data.data) {
           const formattedSplits = data.data.map((split: any) => ({
-            split_id: split.split_ID,
-            transaction_id: split.transaction_ID,
-            debtor_id: split.debtor_ID,
-            payer_id: split.payer_ID,
+            split_id: split.split_id,
+            transaction_id: split.transaction_id,
+            debtor_id: split.debtor_id,
+            payer_id: split.payer_id,
             amount: split.amount,
           }));
           setSplits(formattedSplits);

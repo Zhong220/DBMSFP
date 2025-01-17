@@ -3,7 +3,7 @@ from database import db
 
 friend_bp = Blueprint('friend', __name__)
 
-@friend_bp.route('/add', methods=['POST'])
+@friend_bp.route('/add/', methods=['POST'])
 def add_friend():
     data = request.json
     user_id = data.get('user_id')
@@ -27,7 +27,7 @@ def add_friend():
         db.rollback()
         return jsonify({"error": str(e)}), 500
 
-@friend_bp.route('/delete', methods=['DELETE'])
+@friend_bp.route('/delete/', methods=['DELETE'])
 def delete_friend():
     data = request.json
     user_id = data.get('user_id')

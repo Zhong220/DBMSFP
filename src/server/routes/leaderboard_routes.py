@@ -3,7 +3,7 @@ from database import Database
 
 leaderboard_bp = Blueprint("leaderboard", __name__)
 
-@leaderboard_bp.route("/top", methods=["GET"])
+@leaderboard_bp.route("/top/", methods=["GET"])
 def get_leaderboard():
     """返回排行榜數據"""
     limit = request.args.get("limit", 10, type=int)
@@ -19,7 +19,7 @@ def get_leaderboard():
 
     return jsonify({"success": True, "data": data})
 
-@leaderboard_bp.route("/update", methods=["POST"])
+@leaderboard_bp.route("/update/", methods=["POST"])
 def update_leaderboard():
     """手動更新排行榜數據"""
     db = Database()
@@ -29,7 +29,7 @@ def update_leaderboard():
     return jsonify({"success": True, "message": "Leaderboard updated"})
 
 
-@leaderboard_bp.route("/score/<int:user_id>", methods=["GET"])
+@leaderboard_bp.route("/score/<int:user_id>/", methods=["GET"])
 def get_user_score(user_id):
     """返回指定用戶的積分"""
     db = Database()
