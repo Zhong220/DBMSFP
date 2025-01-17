@@ -1,7 +1,5 @@
-// SplitPage.tsx
 import React, { useState, useEffect } from "react";
 import "./SplitPage.css";
-
 
 interface SplitRecord {
   split_id: number;
@@ -37,46 +35,48 @@ const SplitPage: React.FC = () => {
         console.error("Error fetching splits:", err);
         setError(err.message);
       }
-    };    
+    };
     fetchSplits();
   }, []);
 
   if (error) {
-    return <div>無法取得分帳紀錄: {error}</div>;
+    return <div className="split-error-message">無法取得分帳紀錄: {error}</div>;
   }
 
   if (!splits.length) {
-    return <div>目前沒有任何分帳紀錄</div>;
+    return <div className="split-empty-message">目前沒有任何分帳紀錄</div>;
   }
 
   return (
-    <div>
-      <h2>所有分帳紀錄</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>split_id</th>
-            <th>transaction_id</th>
-            <th>debtor_id</th>
-            <th>payer_id</th>
-            <th>amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          {splits.map((s) => (
-            <tr key={s.split_id}>
-              <td>{s.split_id}</td>
-              <td>{s.transaction_id}</td>
-              <td>{s.debtor_id}</td>
-              <td>{s.payer_id}</td>
-              <td>{s.amount}</td>
+    <div className="split-page-container">
+      <h2 className="split-page-title">所有分帳紀錄</h2>
+      <div className="split-table-container">
+        <table className="split-table">
+          <thead>
+            <tr>
+              <th>split_id</th>
+              <th>transaction_id</th>
+              <th>debtor_id</th>
+              <th>payer_id</th>
+              <th>amount</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {splits.map((s) => (
+              <tr key={s.split_id}>
+                <td>{s.split_id}</td>
+                <td>{s.transaction_id}</td>
+                <td>{s.debtor_id}</td>
+                <td>{s.payer_id}</td>
+                <td>{s.amount}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <button className="back-to-home-button">返回首頁</button>
     </div>
   );
 };
 
 export default SplitPage;
-
